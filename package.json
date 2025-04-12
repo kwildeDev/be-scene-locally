@@ -1,0 +1,39 @@
+{
+  "name": "be-scene-locally",
+  "version": "1.0.0",
+  "description": "be-scene-locally",
+  "main": "listen.js",
+  "scripts": {
+    "setup-dbs": "psql -f ./db/setup.sql",
+    "seed": "node ./db/seeds/run-seed.js",
+    "test": "jest",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kwildeDev/be-scene-locally.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kwildeDev/be-scene-locally/issues"
+  },
+  "homepage": "https://github.com/kwildeDev/be-scene-locally#readme",
+  "devDependencies": {
+    "husky": "^8.0.2",
+    "jest": "^27.5.1",
+    "jest-extended": "^2.0.0",
+    "nodemon": "^3.1.9"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "pg": "^8.7.3",
+    "pg-format": "^1.0.4"
+  },
+  "jest": {
+    "setupFilesAfterEnv": [
+      "jest-extended/all"
+    ]
+  }
+}
