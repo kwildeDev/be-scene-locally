@@ -1,6 +1,5 @@
 module.exports = [
   {
-    user_id: 1,
     email: 'admin@example.com',
     password_hash: '$2b$10$96xWq07w4H0b1R6g9lU0o.7Y8r7K3l6/0.05.mQ2.5zV9j6U1h2', // Example hash
     first_name: 'Admin',
@@ -9,7 +8,6 @@ module.exports = [
     organisation_id: null,
   },
   {
-    user_id: 2,
     email: 'organiser1@keswickcommunitynetwork.org',
     password_hash: '$2b$10$96xWq07w4H0b1R6g9lU0o.7Y8r7K3l6/0.05.mQ2.5zV9j6U1h2', // Example hash
     first_name: 'Jane',
@@ -18,7 +16,6 @@ module.exports = [
     organisation_id: 1,
   },
   {
-    user_id: 3,
     email: 'organiser2@keswicktoddlertime.co.uk',
     password_hash: '$2b$10$96xWq07w4H0b1R6g9lU0o.7Y8r7K3l6/0.05.mQ2.5zV9j6U1h2', // Example hash
     first_name: 'David',
@@ -27,7 +24,6 @@ module.exports = [
     organisation_id: 2,
   },
   {
-    user_id: 4,
     email: 'organiser3@derwentwaterconservation.org',
     password_hash: '$2b$10$96xWq07w4H0b1R6g9lU0o.7Y8r7K3l6/0.05.mQ2.5zV9j6U1h2', // Example hash
     first_name: 'Emily',
@@ -36,7 +32,6 @@ module.exports = [
     organisation_id: 3,
   },
   {
-    user_id: 5,
     email: 'attendee1@example.com',
     password_hash: '$2b$10$96xWq07w4H0b1R6g9lU0o.7Y8r7K3l6/0.05.mQ2.5zV9j6U1h2', // Example hash
     first_name: 'Michael',
@@ -45,7 +40,6 @@ module.exports = [
     organisation_id: null,
   },
   {
-    user_id: 6,
     email: 'attendee2@example.com',
     password_hash: '$2b$10$96xWq07w4H0b1R6g9lU0o.7Y8r7K3l6/0.05.mQ2.5zV9j6U1h2', // Example hash
     first_name: 'Sarah',
@@ -54,7 +48,6 @@ module.exports = [
     organisation_id: null,
   },
   {
-    user_id: 7,
     email: 'attendee3@example.com',
     password_hash: '$2b$10$96xWq07w4H0b1R6g9lU0o.7Y8r7K3l6/0.05.mQ2.5zV9j6U1h2', // Example hash
     first_name: 'Christopher',
@@ -63,7 +56,6 @@ module.exports = [
     organisation_id: null,
   },
   {
-    user_id: 8,
     email: 'attendee4@example.com',
     password_hash: '$2b$10$96xWq07w4H0b1R6g9lU0o.7Y8r7K3l6/0.05.mQ2.5zV9j6U1h2', // Example hash
     first_name: 'Laura',
@@ -72,7 +64,6 @@ module.exports = [
     organisation_id: null,
   },
   {
-    user_id: 9,
     email: 'attendee5@example.com',
     password_hash: '$2b$10$96xWq07w4H0b1R6g9lU0o.7Y8r7K3l6/0.05.mQ2.5zV9j6U1h2', // Example hash
     first_name: 'Kevin',
@@ -81,7 +72,6 @@ module.exports = [
     organisation_id: null,
   },
   {
-    user_id: 10,
     email: 'attendee6@example.com',
     password_hash: '$2b$10$96xWq07w4H0b1R6g9lU0o.7Y8r7K3l6/0.05.mQ2.5zV9j6U1h2', // Example hash
     first_name: 'Amanda',
