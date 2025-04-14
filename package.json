@@ -24,10 +24,13 @@
     "husky": "^8.0.2",
     "jest": "^27.5.1",
     "jest-extended": "^2.0.0",
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "supertest": "^7.1.0"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.0.0",
+    "express": "^5.1.0",
     "pg": "^8.7.3",
     "pg-format": "^1.0.4"
   },
