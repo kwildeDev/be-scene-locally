@@ -48,6 +48,7 @@ describe('Test seeding of test data', () => {
             rows.forEach((row) => {
                 expect(row).toHaveProperty('category_id', expect.any(Number));
                 expect(row).toHaveProperty('name', expect.any(String));
+                expect(row).toHaveProperty('slug', expect.any(String));
                 expect(row).toHaveProperty('description', expect.any(String));
                 expect(row).toHaveProperty('created_at', expect.any(Date));
                 expect(row).toHaveProperty('updated_at', expect.any(Date));
@@ -80,12 +81,10 @@ describe('Test seeding of test data', () => {
         return db.query('SELECT * FROM subcategories;').then(({ rows }) => {
             expect(rows).toHaveLength(19);
             rows.forEach((row) => {
-                expect(row).toHaveProperty(
-                    'subcategory_id',
-                    expect.any(Number)
-                );
+                expect(row).toHaveProperty('subcategory_id',expect.any(Number));
                 expect(row).toHaveProperty('category_id', expect.any(Number));
                 expect(row).toHaveProperty('name', expect.any(String));
+                expect(row).toHaveProperty('slug', expect.any(String));
                 expect(row).toHaveProperty('description', expect.any(String));
                 expect(row).toHaveProperty('created_at', expect.any(Date));
                 expect(row).toHaveProperty('updated_at', expect.any(Date));
@@ -218,21 +217,62 @@ describe('/api/categories', () => {
                 });
             });
     });
-});
-
-describe('/api/subcategories', () => {
-    test('GET 200: returns an array of all available subcategories', () => {
+    test('GET 200: returns category array sorted by name in ascending order by default', () => {
         return request(app)
-            .get('/api/subcategories')
+            .get('/api/categories')
             .expect(200)
             .then(({ body }) => {
-                expect(body.subcategories).toHaveLength(19);
+                const sortedCategories = body.categories.toSorted((a, b) =>
+                    a.name.localeCompare(b.name)
+                ); //https://www.w3schools.com/jsref/jsref_localecompare.asp
+                expect(body.categories).toEqual(sortedCategories);
+            });
+    });
+});
+
+describe('/api/categories/:category_slug/subcategories', () => {
+    test('GET 200: returns an array of all available subcategories for a single category', () => {
+        const categorySlug = 'family-children'
+        return request(app)
+            .get(`/api/categories/${categorySlug}/subcategories`)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.subcategories).toHaveLength(2);
                 body.subcategories.forEach((subcategory) => {
-                    expect(typeof subcategory.subcategory_id).toBe('number');
-                    expect(typeof subcategory.category_id).toBe('number');
-                    expect(typeof subcategory.name).toBe('string');
-                    expect(typeof subcategory.description).toBe('string');
+                    expect(subcategory.category_id).toBe(2);
+                    expect(subcategory).toHaveProperty('subcategory_id', expect.any(Number));
+                    expect(subcategory).toHaveProperty('name', expect.any(String));
+                    expect(subcategory).toHaveProperty('slug', expect.any(String));
+                    expect(subcategory).toHaveProperty('description', expect.any(String));
                 });
             });
+    });
+    test('GET 200: returns subcategory array sorted by name in ascending order by default', () => {
+        const categorySlug = 'community-social'
+        return request(app)
+            .get(`/api/categories/${categorySlug}/subcategories`)
+            .expect(200)
+            .then(({ body }) => {
+                const sortedSubcategories = body.subcategories.toSorted((a, b) =>
+                    a.name.localeCompare(b.name)
+                ); //https://www.w3schools.com/jsref/jsref_localecompare.asp
+                expect(body.subcategories).toEqual(sortedSubcategories);
+            });
+    });
+    test("GET 200: responds with an empty array when given a valid category with no subcategories", () => {
+        return request(app)
+        .get("/api/categories/seniors-accessibility/subcategories")
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.subcategories).toEqual([])
+        });
+    });
+    test("GET 404: responds with an error message when given a valid but non-existent category slug", () => {
+        return request(app)
+        .get("/api/categories/not-a-category/subcategories")
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe("Category not found")
+        });
     });
 });

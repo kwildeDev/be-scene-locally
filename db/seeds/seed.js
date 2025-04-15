@@ -74,10 +74,16 @@ const seed = ({
                 CREATE TABLE categories (
                     category_id SERIAL PRIMARY KEY,
                     name VARCHAR(100) UNIQUE NOT NULL,
+                    slug VARCHAR(100) UNIQUE NOT NULL,
                     description VARCHAR,
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                 );
+            `);
+        })
+        .then(() => {
+            return db.query(`
+                CREATE INDEX idx_category_slug ON categories (slug);
             `);
         })
         .then(() => {
@@ -100,10 +106,16 @@ const seed = ({
                     subcategory_id SERIAL PRIMARY KEY,
                     category_id INT NOT NULL REFERENCES categories(category_id),
                     name VARCHAR(100) NOT NULL, UNIQUE (category_id, name),
+                    slug VARCHAR(100) UNIQUE NOT NULL,
                     description VARCHAR,
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                 );
+            `);
+        })
+        .then(() => {
+            return db.query(`
+                CREATE INDEX idx_subcategory_slug ON subcategories (slug);
             `);
         })
         .then(() => {
@@ -216,10 +228,11 @@ const seed = ({
         })
         .then(() => {
             const insertCategoriesQueryStr = format(
-                'INSERT INTO categories (name, description, created_at, updated_at) VALUES %L;',
+                'INSERT INTO categories (name, slug, description, created_at, updated_at) VALUES %L;',
                 categoriesData.map(
-                    ({ name, description, created_at, updated_at }) => [
+                    ({ name, slug, description, created_at, updated_at }) => [
                         name,
+                        slug,
                         description,
                         created_at,
                         updated_at,
@@ -254,17 +267,19 @@ const seed = ({
         })
         .then(() => {
             const insertSubcategoriesQueryStr = format(
-                'INSERT INTO subcategories (category_id, name, description, created_at, updated_at) VALUES %L',
+                'INSERT INTO subcategories (category_id, name, slug, description, created_at, updated_at) VALUES %L',
                 subcategoriesData.map(
                     ({
                         category_id,
                         name,
+                        slug,
                         description,
                         created_at,
                         updated_at,
                     }) => [
                         category_id,
                         name,
+                        slug,
                         description,
                         created_at,
                         updated_at,
