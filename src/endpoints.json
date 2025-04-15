@@ -1,0 +1,72 @@
+{
+    "GET /api": {
+      "description": "serves up a json representation of all the available endpoints of the api"
+    },
+    "GET /api/categories": {
+      "description": "serves an array of all categories",
+      "queries": [],
+      "exampleResponse": []
+    },
+    "GET /api/subcategories": {
+      "description": "serves an array of all subcategories",
+      "queries": [],
+      "exampleResponse": []
+    },
+    "GET /api/events": {
+        "description": "serves an array of all events",
+        "queries": [],
+        "exampleResponse": []
+    },
+    "GET /api/events/:event_id": {
+        "description": "serves a single event by event ID number",
+        "queries": [],
+        "exampleResponse": []
+    },
+    "POST /api/events/:event_id/attendees": {
+        "description": "adds an attendee for an event",
+        "queries": [],
+        "exampleResponse": []
+    },
+    "GET /api/venues": {
+        "description": "serves an array of all venues",
+        "queries": [],
+        "exampleResponse": []
+    },
+    "POST /api/events": {
+        "description": "adds a new event",
+        "queries": [],
+        "exampleResponse": []
+    },
+    "PATCH /api/events/:event_id": {
+        "description": "updates a single event",
+        "queries": [],
+        "exampleResponse": []
+    },
+    "DELETE /api/events/:event_id": {
+        "description": "deletes a single event",
+        "queries": [],
+        "exampleResponse": []
+    },
+    "GET /api/users/:user_id": {
+        "description": "serves a single user by User ID number",
+        "queries": [],
+        "exampleResponse": []
+    },
+    "GET /api/organisations/:organisation_id/events": {
+        "description": "serves an array of all events for a single organisation",
+        "queries": [],
+        "exampleResponse": []
+    },
+    "GET /api/events/:event_id/attendees": {
+        "description": "serves an array of all attendees for a single event",
+        "queries": [],
+        "exampleResponse": []
+    },
+    "POST /api/auth/login": {
+        "description": "authenticates a user with their email and password, returning an access token for secure API requests",
+        "queries": [],
+        "exampleResponse": [],
+        "errorResponses": [],
+        "security": []
+    }
+}
