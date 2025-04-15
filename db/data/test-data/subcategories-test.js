@@ -2,6 +2,7 @@ module.exports = [
   {
     category_id: 1,
     name: 'Local Gatherings',
+    slug: 'local-gatherings',
     description: 'General social gatherings and meetups.',
     created_at: '2024-10-26T11:00:00Z',
     updated_at: '2024-10-26T11:00:00Z',
@@ -9,6 +10,7 @@ module.exports = [
   {
     category_id: 1,
     name: 'Neighbourhood Socials',
+    slug: 'neighbourhood-socials',
     description: 'Social events within specific neighbourhoods.',
     created_at: '2024-10-26T11:05:00Z',
     updated_at: '2024-10-26T11:05:00Z',
@@ -16,6 +18,7 @@ module.exports = [
   {
     category_id: 1,
     name: 'Community Projects',
+    slug: 'community-projects',
     description: 'Volunteer and community improvement projects.',
     created_at: '2024-10-26T11:10:00Z',
     updated_at: '2024-10-26T11:10:00Z',
@@ -23,6 +26,7 @@ module.exports = [
   {
     category_id: 1,
     name: 'Seniors Socials',
+    slug: 'seniors-socials',
     description: 'Social events specifically for senior residents.',
     created_at: '2024-10-26T11:15:00Z',
     updated_at: '2024-10-26T11:15:00Z',
@@ -30,6 +34,7 @@ module.exports = [
   {
     category_id: 2,
     name: 'Toddler Groups',
+    slug: 'toddler-groups',
     description: 'Weekly playgroups for young children.',
     created_at: '2024-10-26T11:20:00Z',
     updated_at: '2024-10-26T11:20:00Z',
@@ -37,6 +42,7 @@ module.exports = [
   {
     category_id: 2,
     name: 'Childrens Workshops',
+    slug: 'childrens-workshops',
     description: 'Crafts, learning, and activity workshops for children.',
     created_at: '2024-10-26T11:25:00Z',
     updated_at: '2024-10-26T11:25:00Z',
@@ -44,6 +50,7 @@ module.exports = [
   {
     category_id: 3,
     name: 'River Cleanups',
+    slug: 'river-cleanups',
     description: 'Volunteer events to clean the river banks.',
     created_at: '2024-10-26T11:30:00Z',
     updated_at: '2024-10-26T11:30:00Z',
@@ -51,6 +58,7 @@ module.exports = [
   {
     category_id: 3,
     name: 'Beach Cleanups',
+    slug: 'beach-cleanups',
     description: 'Volunteer events to clean the local beach.',
     created_at: '2024-10-26T11:35:00Z',
     updated_at: '2024-10-26T11:35:00Z',
@@ -58,6 +66,7 @@ module.exports = [
   {
     category_id: 4,
     name: 'Local Shop Promotions',
+    slug: 'local-shop-promotions',
     description: 'Special offers and promotions from local shops.',
     created_at: '2024-10-26T11:40:00Z',
     updated_at: '2024-10-26T11:40:00Z',
@@ -65,6 +74,7 @@ module.exports = [
   {
     category_id: 4,
     name: 'Farmers Markets',
+    slug: 'farmers-markets',
     description: 'Local farmers markets and food stalls.',
     created_at: '2024-10-26T11:45:00Z',
     updated_at: '2024-10-26T11:45:00Z',
@@ -72,6 +82,7 @@ module.exports = [
   {
     category_id: 5,
     name: 'Art Exhibitions',
+    slug: 'art-exhibitions',
     description: 'Displays of local artwork and crafts.',
     created_at: '2024-10-26T11:50:00Z',
     updated_at: '2024-10-26T11:50:00Z',
@@ -79,6 +90,7 @@ module.exports = [
   {
     category_id: 5,
     name: 'Live Music',
+    slug: 'live-music',
     description: 'Live music performances at local venues.',
     created_at: '2024-10-26T11:55:00Z',
     updated_at: '2024-10-26T11:55:00Z',
@@ -86,6 +98,7 @@ module.exports = [
   {
     category_id: 6,
     name: 'Fitness Classes',
+    slug: 'fitness-classes',
     description: 'Local fitness classes and exercise sessions.',
     created_at: '2024-10-26T12:00:00Z',
     updated_at: '2024-10-26T12:00:00Z',
@@ -93,6 +106,7 @@ module.exports = [
   {
     category_id: 6,
     name: 'Health Talks',
+    slug: 'health-talks',
     description: 'Monthly talks on various health topics.',
     created_at: '2024-10-26T12:05:00Z',
     updated_at: '2024-10-26T12:05:00Z',
@@ -100,6 +114,7 @@ module.exports = [
   {
     category_id: 8,
     name: 'Youth Clubs',
+    slug: 'youth-clubs',
     description: 'Clubs and activities for young people.',
     created_at: '2024-10-26T12:10:00Z',
     updated_at: '2024-10-26T12:10:00Z',
@@ -107,6 +122,7 @@ module.exports = [
   {
     category_id: 8,
     name: 'School Holiday Activities',
+    slug: 'school-holiday-activities',
     description: 'Activities for children during school holidays.',
     created_at: '2024-10-26T12:15:00Z',
     updated_at: '2024-10-26T12:15:00Z',
@@ -114,6 +130,7 @@ module.exports = [
   {
     category_id: 9,
     name: 'Book Clubs',
+    slug: 'book-clubs',
     description: 'Weekly book club discussions.',
     created_at: '2024-10-26T12:20:00Z',
     updated_at: '2024-10-26T12:20:00Z',
@@ -121,6 +138,7 @@ module.exports = [
   {
     category_id: 9,
     name: 'Skill-Sharing Workshops',
+    slug: 'skill-sharing-workshops',
     description: 'Workshops where people share skills and knowledge.',
     created_at: '2024-10-26T12:25:00Z',
     updated_at: '2024-10-26T12:25:00Z',
@@ -128,6 +146,7 @@ module.exports = [
   {
     category_id: 10,
     name: 'General Sports Training',
+    slug: 'general-sports-training',
     description: 'Training sessions for various sports and fitness activities.',
     created_at: '2024-10-26T12:30:00Z',
     updated_at: '2024-10-26T12:30:00Z',
