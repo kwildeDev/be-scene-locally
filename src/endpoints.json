@@ -26,7 +26,32 @@
     "GET /api/subcategories": {
         "description": "serves an array of all subcategories",
         "queries": [],
-        "exampleResponse": []
+        "exampleResponse": [
+            {
+                "subcategory_id": 8,
+                "category_id": 3,
+                "name": "Beach Cleanups",
+                "description": "Volunteer events to clean the local beach."
+              },
+              {
+                "subcategory_id": 9,
+                "category_id": 4,
+                "name": "Local Shop Promotions",
+                "description": "Special offers and promotions from local shops."
+              },
+              {
+                "subcategory_id": 10,
+                "category_id": 4,
+                "name": "Farmers Markets",
+                "description": "Local farmers markets and food stalls."
+              },
+              {
+                "subcategory_id": 11,
+                "category_id": 5,
+                "name": "Art Exhibitions",
+                "description": "Displays of local artwork and crafts."
+              }
+        ]
     },
     "GET /api/events": {
         "description": "serves an array of all events",

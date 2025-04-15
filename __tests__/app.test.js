@@ -219,3 +219,20 @@ describe('/api/categories', () => {
             });
     });
 });
+
+describe('/api/subcategories', () => {
+    test('GET 200: returns an array of all available subcategories', () => {
+        return request(app)
+            .get('/api/subcategories')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.subcategories).toHaveLength(19);
+                body.subcategories.forEach((subcategory) => {
+                    expect(typeof subcategory.subcategory_id).toBe('number');
+                    expect(typeof subcategory.category_id).toBe('number');
+                    expect(typeof subcategory.name).toBe('string');
+                    expect(typeof subcategory.description).toBe('string');
+                });
+            });
+    });
+});
