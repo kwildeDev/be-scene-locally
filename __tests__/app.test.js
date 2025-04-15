@@ -2,8 +2,8 @@ const testData = require('../db/data/test-data/index-test.js');
 const seed = require('../db/seeds/seed.js');
 const db = require('../db/connection.js');
 const request = require('supertest');
-//const app = require('../src/app.js');
-//const endpoints = require('../src/endpoints.json');
+const app = require('../src/app.js');
+const endpoints = require('../src/endpoints.json');
 const { string } = require('pg-format');
 
 beforeEach(() => seed(testData));
@@ -151,6 +151,17 @@ describe('Test seeding of test data', () => {
                 expect(row).toHaveProperty('user_id', expect.any(Number));
                 expect(row).toHaveProperty('created_at', expect.any(Date));
             });
+        });
+    });
+});
+
+describe('/api', () => {
+    test('GET 200: returns an object detailing all available API endpoints', () => {
+        return request(app)
+        .get("/api")
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.endpoints).toEqual(endpoints);
         });
     });
 });
