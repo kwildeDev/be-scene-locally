@@ -15,7 +15,10 @@ describe('Test seeding of test data', () => {
         return db.query('SELECT * FROM organisations;').then(({ rows }) => {
             expect(rows).toHaveLength(10);
             rows.forEach((row) => {
-                expect(row).toHaveProperty('organisation_id', expect.any(Number));
+                expect(row).toHaveProperty(
+                    'organisation_id',
+                    expect.any(Number)
+                );
                 expect(row).toHaveProperty('name', expect.any(String));
                 expect(row).toHaveProperty('description', expect.any(String));
                 expect(row).toHaveProperty('logo_url', expect.any(String));
@@ -53,25 +56,34 @@ describe('Test seeding of test data', () => {
     });
     test('Should correctly seed users table', () => {
         return db.query('SELECT * FROM users;').then(({ rows }) => {
-            expect(rows).toHaveLength(10)
+            expect(rows).toHaveLength(10);
             rows.forEach((row) => {
                 expect(row).toHaveProperty('user_id', expect.any(Number));
                 expect(row).toHaveProperty('email', expect.any(String));
                 expect(row).toHaveProperty('password_hash', expect.any(String));
                 expect(row).toHaveProperty('first_name', expect.any(String));
                 expect(row).toHaveProperty('last_name', expect.any(String));
-                expect(row).toHaveProperty('registration_date', expect.any(Date));
+                expect(row).toHaveProperty(
+                    'registration_date',
+                    expect.any(Date)
+                );
                 expect(row).toHaveProperty('role', expect.any(String));
                 expect(row).toHaveProperty('organisation_id');
-                expect(row.organisation_id === null || typeof row.organisation_id === 'number').toBe(true);
+                expect(
+                    row.organisation_id === null ||
+                        typeof row.organisation_id === 'number'
+                ).toBe(true);
             });
         });
     });
     test('Should correctly seed subcategories table', () => {
         return db.query('SELECT * FROM subcategories;').then(({ rows }) => {
-            expect(rows).toHaveLength(19)
+            expect(rows).toHaveLength(19);
             rows.forEach((row) => {
-                expect(row).toHaveProperty('subcategory_id', expect.any(Number));
+                expect(row).toHaveProperty(
+                    'subcategory_id',
+                    expect.any(Number)
+                );
                 expect(row).toHaveProperty('category_id', expect.any(Number));
                 expect(row).toHaveProperty('name', expect.any(String));
                 expect(row).toHaveProperty('description', expect.any(String));
@@ -82,20 +94,29 @@ describe('Test seeding of test data', () => {
     });
     test('Should correctly seed events table', () => {
         return db.query('SELECT * FROM events;').then(({ rows }) => {
-            expect(rows).toHaveLength(20)
+            expect(rows).toHaveLength(20);
             rows.forEach((row) => {
                 expect(row).toHaveProperty('event_id', expect.any(Number));
-                expect(row).toHaveProperty('organisation_id', expect.any(Number));
+                expect(row).toHaveProperty(
+                    'organisation_id',
+                    expect.any(Number)
+                );
                 expect(row).toHaveProperty('title', expect.any(String));
                 expect(row).toHaveProperty('description', expect.any(String));
                 expect(row).toHaveProperty('start_datetime', expect.any(Date));
                 expect(row).toHaveProperty('end_datetime', expect.any(Date));
                 expect(row).toHaveProperty('venue_id', expect.any(Number));
                 expect(row).toHaveProperty('category_id', expect.any(Number));
-                expect(row).toHaveProperty('subcategory_id', expect.any(Number));
+                expect(row).toHaveProperty(
+                    'subcategory_id',
+                    expect.any(Number)
+                );
                 expect(row).toHaveProperty('tags', expect.any(Array));
                 expect(row).toHaveProperty('is_recurring', expect.any(Boolean));
-                expect(row).toHaveProperty('recurring_schedule', expect.any(Object));
+                expect(row).toHaveProperty(
+                    'recurring_schedule',
+                    expect.any(Object)
+                );
                 expect(row).toHaveProperty('created_at', expect.any(Date));
                 expect(row).toHaveProperty('updated_at', expect.any(Date));
                 expect(row).toHaveProperty('status', expect.any(String));
@@ -107,9 +128,12 @@ describe('Test seeding of test data', () => {
     });
     test('Should correctly seed attendees table', () => {
         return db.query('SELECT * FROM attendees;').then(({ rows }) => {
-            expect(rows).toHaveLength(20)
+            expect(rows).toHaveLength(20);
             rows.forEach((row) => {
-                expect(row).toHaveProperty('registration_id', expect.any(Number));
+                expect(row).toHaveProperty(
+                    'registration_id',
+                    expect.any(Number)
+                );
                 expect(row).toHaveProperty('event_id', expect.any(Number));
                 expect(row).toHaveProperty('user_id', expect.any(Number));
                 expect(row).toHaveProperty('created_at', expect.any(Date));
@@ -118,7 +142,7 @@ describe('Test seeding of test data', () => {
     });
     test('Should correctly seed faqs table', () => {
         return db.query('SELECT * FROM faqs;').then(({ rows }) => {
-            expect(rows).toHaveLength(10)
+            expect(rows).toHaveLength(10);
             rows.forEach((row) => {
                 expect(row).toHaveProperty('faq_id', expect.any(Number));
                 expect(row).toHaveProperty('question', expect.any(String));
@@ -129,12 +153,14 @@ describe('Test seeding of test data', () => {
     });
     test('Should correctly seed questions table', () => {
         return db.query('SELECT * FROM questions;').then(({ rows }) => {
-            expect(rows).toHaveLength(7)
+            expect(rows).toHaveLength(7);
             rows.forEach((row) => {
                 expect(row).toHaveProperty('question_id', expect.any(Number));
                 expect(row).toHaveProperty('question', expect.any(String));
                 expect(row).toHaveProperty('answer');
-                expect(row.answer === null || typeof row.answer === 'string').toBe(true);
+                expect(
+                    row.answer === null || typeof row.answer === 'string'
+                ).toBe(true);
                 expect(row).toHaveProperty('event_id', expect.any(Number));
                 expect(row).toHaveProperty('user_id', expect.any(Number));
             });
@@ -142,7 +168,7 @@ describe('Test seeding of test data', () => {
     });
     test('Should correctly seed reviews table', () => {
         return db.query('SELECT * FROM reviews;').then(({ rows }) => {
-            expect(rows).toHaveLength(7)
+            expect(rows).toHaveLength(7);
             rows.forEach((row) => {
                 expect(row).toHaveProperty('review_id', expect.any(Number));
                 expect(row).toHaveProperty('rating', expect.any(Number));
@@ -158,11 +184,38 @@ describe('Test seeding of test data', () => {
 describe('/api', () => {
     test('GET 200: returns an object detailing all available API endpoints', () => {
         return request(app)
-        .get("/api")
-        .expect(200)
-        .then(({ body }) => {
-            expect(body.endpoints).toEqual(endpoints);
-        });
+            .get('/api')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.endpoints).toEqual(endpoints);
+            });
     });
 });
 
+describe('Invalid route handling', () => {
+    it('GET 404: responds with an error message when given an invalid endpoint', () => {
+        return request(app)
+            .get('/api/banana')
+            .expect(404)
+            .then((response) => {
+                expect(response.status).toBe(404);
+                expect(response.body.msg).toBe('Endpoint Does Not Exist');
+            });
+    });
+});
+
+describe('/api/categories', () => {
+    test('GET 200: returns an array of all available categories', () => {
+        return request(app)
+            .get('/api/categories')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.categories).toHaveLength(10);
+                body.categories.forEach((category) => {
+                    expect(typeof category.category_id).toBe('number');
+                    expect(typeof category.name).toBe('string');
+                    expect(typeof category.description).toBe('string');
+                });
+            });
+    });
+});

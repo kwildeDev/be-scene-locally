@@ -1,16 +1,32 @@
 {
     "GET /api": {
-      "description": "serves up a json representation of all the available endpoints of the api"
+        "description": "serves up a json representation of all the available endpoints of the api"
     },
     "GET /api/categories": {
-      "description": "serves an array of all categories",
-      "queries": [],
-      "exampleResponse": []
+        "description": "serves an array of all categories",
+        "queries": [],
+        "exampleResponse": [
+            {
+                "category_id": 1,
+                "name": "Community & Social",
+                "description": "Local gatherings, neighbourhood events, and community initiatives."
+              },
+              {
+                "category_id": 2,
+                "name": "Family & Children",
+                "description": "Activities, workshops, and events for families and children of all ages."
+              },
+              {
+                "category_id": 3,
+                "name": "Environment & Outdoors",
+                "description": "Events focused on environmental care, outdoor activities, and enjoying nature."
+              }
+        ]
     },
     "GET /api/subcategories": {
-      "description": "serves an array of all subcategories",
-      "queries": [],
-      "exampleResponse": []
+        "description": "serves an array of all subcategories",
+        "queries": [],
+        "exampleResponse": []
     },
     "GET /api/events": {
         "description": "serves an array of all events",
