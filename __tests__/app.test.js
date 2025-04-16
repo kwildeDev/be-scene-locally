@@ -276,3 +276,28 @@ describe('/api/categories/:category_slug/subcategories', () => {
         });
     });
 });
+
+describe('/api/events', () => {
+    test('GET 200: returns an array of all available events', () => {
+        return request(app)
+            .get(`/api/events`)
+            .expect(200)
+            .then(({ body }) => {
+                console.log(body)
+                expect(body.events).toHaveLength(20);
+                body.events.forEach((event) => {
+                    expect(event).toHaveProperty('event_id', expect.any(Number));
+                    expect(event).toHaveProperty('organiser', expect.any(String));
+                    expect(event).toHaveProperty('title', expect.any(String));
+                    expect(event).toHaveProperty('start_datetime', expect.any(String));
+                    expect(event).toHaveProperty('venue', expect.any(String));
+                    expect(event).toHaveProperty('category_id', expect.any(Number));
+                    expect(event).toHaveProperty('subcategory_id', expect.any(Number));
+                    expect(event).toHaveProperty('is_recurring', expect.any(Boolean));
+                    expect(event).toHaveProperty('image_url', expect.any(String));
+                    expect(event).toHaveProperty('is_online', expect.any(Boolean));
+                });
+            });
+    });
+});
+
