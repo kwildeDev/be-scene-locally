@@ -138,7 +138,8 @@ const seed = ({
                     status VARCHAR(50) NOT NULL,
                     image_url VARCHAR,
                     access_link VARCHAR,
-                    is_online BOOLEAN DEFAULT FALSE
+                    is_online BOOLEAN DEFAULT FALSE,
+                    signup_required BOOLEAN DEFAULT TRUE
                 );
             `);
         })

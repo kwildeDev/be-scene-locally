@@ -122,6 +122,7 @@ describe('Test seeding of test data', () => {
                 expect(row).toHaveProperty('image_url', expect.any(String));
                 expect(row).toHaveProperty('access_link');
                 expect(row).toHaveProperty('is_online', expect.any(Boolean));
+                expect(row).toHaveProperty('signup_required', expect.any(Boolean));
             });
         });
     });
@@ -259,17 +260,17 @@ describe('/api/categories/:category_slug/subcategories', () => {
                 expect(body.subcategories).toEqual(sortedSubcategories);
             });
     });
-    test("GET 200: responds with an empty array when given a valid category with no subcategories", () => {
+    test('GET 200: responds with an empty array when given a valid category with no subcategories', () => {
         return request(app)
-        .get("/api/categories/seniors-accessibility/subcategories")
+        .get('/api/categories/seniors-accessibility/subcategories')
         .expect(200)
         .then(({ body }) => {
             expect(body.subcategories).toEqual([])
         });
     });
-    test("GET 404: responds with an error message when given a valid but non-existent category slug", () => {
+    test('GET 404: responds with an error message when given a valid but non-existent category slug', () => {
         return request(app)
-        .get("/api/categories/not-a-category/subcategories")
+        .get('/api/categories/not-a-category/subcategories')
         .expect(404)
         .then(({ body }) => {
             expect(body.msg).toBe("Category not found")
@@ -322,28 +323,29 @@ describe('/api/events/:event_id', () => {
                 expect(body.event).toHaveProperty('is_recurring', expect.any(Boolean));
                 expect(body.event).toHaveProperty('image_url', expect.any(String));
                 expect(body.event).toHaveProperty('is_online', expect.any(Boolean));
+                expect(body.event).toHaveProperty('signup_required', expect.any(Boolean));
             });
     });
-    test("GET 404: responds with an error message when given a valid but non-existent event_id", () => {
+    test('GET 404: responds with an error message when given a valid but non-existent event_id', () => {
         return request(app)
-            .get("/api/events/99999")
+            .get('/api/events/99999')
             .expect(404)
             .then(({ body }) => {
-                expect(body.msg).toBe("Event not found");
+                expect(body.msg).toBe('Event not found');
             });
     });
-    test("GET 400: responds with an error message when given an invalid event_id", () => {
+    test('GET 400: responds with an error message when given an invalid event_id', () => {
         return request(app)
-            .get("/api/events/mothceteers")
+            .get('/api/events/mothceteers')
             .expect(400)
             .then(({ body }) => {
-                expect(body.msg).toBe("Bad Request")
+                expect(body.msg).toBe('Bad Request')
             });
     });
 });
 
 describe('/api/events/:event_id/attendees', () => {
-    test("POST 201: registers a new attendee to the event and sends it back to the client", () => {
+    test('POST 201: registers a new attendee to the event and sends it back to the client', () => {
         const input = { user_id: 10 };
         const expectedAttendee = {
             registration_id: 21,
@@ -351,7 +353,7 @@ describe('/api/events/:event_id/attendees', () => {
             user_id: 10
         }
         return request(app)
-            .post("/api/events/8/attendees")
+            .post('/api/events/8/attendees')
             .send(input)
             .expect(201)
             .then(({ body }) => {
@@ -361,7 +363,7 @@ describe('/api/events/:event_id/attendees', () => {
                 })
             });
     });
-    test("POST 201: ignores unnecessary properties", () => {
+    test('POST 201: ignores unnecessary properties', () => {
         const input = { user_id: 9, i_love_chocolate: true };
         const expectedAttendee = {
             registration_id: 21,
@@ -369,7 +371,7 @@ describe('/api/events/:event_id/attendees', () => {
             user_id: 9
         }
         return request(app)
-            .post("/api/events/2/attendees")
+            .post('/api/events/2/attendees')
             .send(input)
             .expect(201)
             .then(({ body }) => {
@@ -377,20 +379,20 @@ describe('/api/events/:event_id/attendees', () => {
                 expect(body.attendee).toMatchObject({
                     created_at: expect.any(String)
                 })
-                expect(body.attendee).not.toHaveProperty("i_love_chocolate")
+                expect(body.attendee).not.toHaveProperty('i_love_chocolate')
             });
     });
-    test("POST 201: registers multiple attendees sequentially", () => {
+    test('POST 201: registers multiple attendees sequentially', () => {
         const firstInput = { user_id: 10 };
         const secondInput = { user_id: 9 };
         return request(app)
-            .post("/api/events/8/attendees")
+            .post('/api/events/8/attendees')
             .send(firstInput)
             .expect(201)
             .then(({ body }) => {
                 expect(body.attendee.registration_id).toBe(21);
                 return request(app)
-                    .post("/api/events/2/attendees")
+                    .post('/api/events/2/attendees')
                     .send(secondInput)
                     .expect(201);
             })
@@ -398,44 +400,64 @@ describe('/api/events/:event_id/attendees', () => {
                 expect(body.attendee.registration_id).toBe(22);
             });
     });
-    test("POST 400: responds with an error message when attempting to register to an invalid event_id", () => {
+    test('POST 400: responds with an error message when attempting to register to an invalid event_id', () => {
         const input = { user_id: 7 };
         return request(app)
-        .post("/api/events/john-talks-boats/attendees")
+        .post('/api/events/john-talks-boats/attendees')
         .send(input)
         .expect(400)
         .then(({ body }) => {
-            expect(body.msg).toBe("Bad Request")
+            expect(body.msg).toBe('Bad Request')
         });
     });
-    test("POST 404: responds with an error message when attempting to register to a valid but non-existent event_id", () => {
+    test('POST 404: responds with an error message when attempting to register to a valid but non-existent event_id', () => {
         const input = { user_id: 6};
         return request(app)
-        .post("/api/events/99999/attendees")
+        .post('/api/events/99999/attendees')
         .send(input)
         .expect(404)
         .then(({ body }) => {
-            expect(body.msg).toBe("Not Found")
+            expect(body.msg).toBe('Not Found')
         });
     });
-    test("POST 400: responds with an error message if the user_id is missing", () => {
-        const input = { user_name: "Dave"};
+    test('POST 400: responds with an error message if the user_id is missing', () => {
+        const input = { user_name: 'Dave'};
         return request(app)
-        .post("/api/events/1/attendees")
+        .post('/api/events/1/attendees')
         .send(input)
         .expect(400)
         .then(({ body }) => {
-            expect(body.msg).toBe("Bad Request")
+            expect(body.msg).toBe('Bad Request')
         });
     })
-    test("POST 404: responds with an error message if the user does not exist", () => {
+    test('POST 404: responds with an error message if the user does not exist', () => {
         const input = { user_id: 99999 };
         return request(app)
-        .post("/api/events/3/attendees")
+        .post('/api/events/3/attendees')
         .send(input)
         .expect(404)
         .then(({ body }) => {
-            expect(body.msg).toBe("Not Found")
+            expect(body.msg).toBe('Not Found')
         });
+    });
+});
+
+describe('/api/venues', () => {
+    test('GET 200: returns an array of all available venues', () => {
+        return request(app)
+            .get('/api/venues')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.venues).toHaveLength(10);
+                body.venues.forEach((venue) => {
+                    expect(venue).toHaveProperty('venue_id', expect.any(Number));
+                    expect(venue).toHaveProperty('name', expect.any(String));
+                    expect(venue).toHaveProperty('address_line1', expect.any(String));
+                    expect(venue).toHaveProperty('address_line2');
+                    expect(venue).toHaveProperty('city', expect.any(String));
+                    expect(venue).toHaveProperty('county', expect.any(String));
+                    expect(venue).toHaveProperty('postcode', expect.any(String));
+                });
+            });
     });
 });

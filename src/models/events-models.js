@@ -21,7 +21,7 @@ exports.fetchEventById = (event_id) => {
         .query(
             `SELECT events.event_id, events.organisation_id, organisations.name AS organisation_name, events.title, events.description,
             events.start_datetime, events.end_datetime, events.venue_id, venues.name AS venue_name, events.category_id, events.subcategory_id, 
-            events.tags, events.is_recurring, events.image_url, events.is_online 
+            events.tags, events.is_recurring, events.image_url, events.is_online, events.signup_required 
             FROM events 
             INNER JOIN organisations
             ON events.organisation_id = organisations.organisation_id
