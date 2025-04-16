@@ -283,7 +283,6 @@ describe('/api/events', () => {
             .get(`/api/events`)
             .expect(200)
             .then(({ body }) => {
-                console.log(body)
                 expect(body.events).toHaveLength(20);
                 body.events.forEach((event) => {
                     expect(event).toHaveProperty('event_id', expect.any(Number));
@@ -301,3 +300,44 @@ describe('/api/events', () => {
     });
 });
 
+describe('/api/events/:event_id', () => {
+    test('GET 200: returns a single event object when given a valid and existing event id', () => {
+        const eventId = 5
+        return request(app)
+        .get(`/api/events/${eventId}`)
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.event.event_id).toBe(5)
+            expect(body.event).toHaveProperty('organisation_id', expect.any(Number));
+            expect(body.event).toHaveProperty('organisation_name', expect.any(String));
+            expect(body.event).toHaveProperty('title', expect.any(String));
+            expect(body.event).toHaveProperty('description', expect.any(String));
+            expect(body.event).toHaveProperty('start_datetime', expect.any(String));
+            expect(body.event).toHaveProperty('end_datetime', expect.any(String));
+            expect(body.event).toHaveProperty('venue_id', expect.any(Number));
+            expect(body.event).toHaveProperty('venue_name', expect.any(String));
+            expect(body.event).toHaveProperty('category_id', expect.any(Number));
+            expect(body.event).toHaveProperty('subcategory_id', expect.any(Number));
+            expect(body.event).toHaveProperty('tags', expect.any(Array));
+            expect(body.event).toHaveProperty('is_recurring', expect.any(Boolean));
+            expect(body.event).toHaveProperty('image_url', expect.any(String));
+            expect(body.event).toHaveProperty('is_online', expect.any(Boolean));
+        });
+    });
+    test("GET 404: responds with an error message when given a valid but non-existent event_id", () => {
+        return request(app)
+        .get("/api/events/99999")
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe("Event not found");
+        });
+    });
+    test("GET 400: responds with an error message when given an invalid event_id", () => {
+        return request(app)
+        .get("/api/events/mothceteers")
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe("Bad Request")
+        });
+    });
+});
