@@ -15,6 +15,7 @@ module.exports = [
     image_url: 'community_coffee.jpg',
     access_link: null,
     is_online: false,
+    signup_required: false,
   },
   {
     organisation_id: 2,
@@ -32,6 +33,7 @@ module.exports = [
     image_url: 'toddler_time.jpg',
     access_link: null,
     is_online: false,
+    signup_required: false,
   },
   {
     organisation_id: 3,
@@ -49,6 +51,7 @@ module.exports = [
     image_url: 'river_cleanup.jpg',
     access_link: null,
     is_online: false,
+    signup_required: true,
   },
   {
     organisation_id: 4,
@@ -67,6 +70,7 @@ module.exports = [
     image_url: 'local_sale.jpg',
     access_link: null,
     is_online: false,
+    signup_required: false,
   },
   {
     organisation_id: 5,
@@ -84,6 +88,7 @@ module.exports = [
     image_url: 'art_exhibition.jpg',
     access_link: null,
     is_online: false,
+    signup_required: true,
   },
   {
     organisation_id: 6,
@@ -95,12 +100,13 @@ module.exports = [
     category_id: 6,
     subcategory_id: 13,
     tags: ['yoga', 'fitness', 'beginners'],
-    is_recurring: true,
-    recurring_schedule: { frequency: 'Weekly', day: 'Friday' },
+    is_recurring: false,
+    recurring_schedule: null,
     status: 'published',
     image_url: 'yoga.jpg',
     access_link: null,
     is_online: false,
+    signup_required: true,
   },
   {
     organisation_id: 7,
@@ -112,12 +118,13 @@ module.exports = [
     category_id: 7,
     subcategory_id: 4,
     tags: ['seniors', 'social', 'tea'],
-    is_recurring: true,
-    recurring_schedule: { frequency: 'Monthly', day: 'Last Monday' },
+    is_recurring: false,
+    recurring_schedule: null,
     status: 'published',
     image_url: 'seniors_tea.jpg',
     access_link: null,
     is_online: false,
+    signup_required: true,
   },
   {
     organisation_id: 8,
@@ -135,6 +142,7 @@ module.exports = [
     image_url: 'coding_workshop.jpg',
     access_link: null,
     is_online: false,
+    signup_required: true,
   },
   {
     organisation_id: 9,
@@ -152,6 +160,7 @@ module.exports = [
     image_url: 'book_club.jpg',
     access_link: null,
     is_online: false,
+    signup_required: true,
   },
   {
     organisation_id: 10,
@@ -169,6 +178,7 @@ module.exports = [
     image_url: 'football_training.jpg',
     access_link: null,
     is_online: false,
+    signup_required: true
   },
   {
     organisation_id: 1,
@@ -186,6 +196,7 @@ module.exports = [
     image_url: 'christmas_carols.jpg',
     access_link: null,
     is_online: false,
+    signup_required: false,
   },
   {
     organisation_id: 2,
@@ -203,6 +214,7 @@ module.exports = [
     image_url: 'beach_walk.jpg',
     access_link: null,
     is_online: false,
+    signup_required: true,
   },
   {
     organisation_id: 3,
@@ -214,12 +226,13 @@ module.exports = [
     category_id: 9,
     subcategory_id: 18,
     tags: ['photography', 'workshop', 'beginners'],
-    is_recurring: true,
-    recurring_schedule: { frequency: 'Monthly', day: 'Third Wednesday' },
+    is_recurring: false,
+    recurring_schedule: null,
     status: 'published',
     image_url: 'photography_workshop.jpg',
     access_link: null,
     is_online: false,
+    signup_required: true,
   },
   {
     organisation_id: 4,
@@ -238,6 +251,7 @@ module.exports = [
     image_url: 'farmers_market.jpg',
     access_link: null,
     is_online: false,
+    signup_required: false,
   },
   {
     organisation_id: 5,
@@ -255,6 +269,7 @@ module.exports = [
     image_url: 'drama_club.jpg',
     access_link: null,
     is_online: false,
+    signup_required: true,
   },
   {
     organisation_id: 6,
@@ -266,12 +281,13 @@ module.exports = [
     category_id: 6,
     subcategory_id: 14,
     tags: ['mindfulness', 'meditation', 'wellbeing'],
-    is_recurring: true,
-    recurring_schedule: { frequency: 'Monthly', day: 'Second Monday' },
+    is_recurring: false,
+    recurring_schedule: null,
     status: 'published',
     image_url: 'mindfulness.jpg',
     access_link: null,
     is_online: false,
+    signup_required: true,
   },
   {
     organisation_id: 7,
@@ -289,6 +305,7 @@ module.exports = [
     image_url: 'games_afternoon.jpg',
     access_link: null,
     is_online: false,
+    signup_required: true,
   },
   {
     organisation_id: 8,
@@ -306,6 +323,7 @@ module.exports = [
     image_url: 'craft_session.jpg',
     access_link: null,
     is_online: false,
+    signup_required: true,
   },
   {
     organisation_id: 9,
@@ -323,6 +341,7 @@ module.exports = [
     image_url: 'history_talk.jpg',
     access_link: null,
     is_online: false,
+    signup_required: true,
   },
   {
     organisation_id: 10,
@@ -340,5 +359,6 @@ module.exports = [
     image_url: 'run_club.jpg',
     access_link: null,
     is_online: false,
+    signup_required: false,
   },
 ];

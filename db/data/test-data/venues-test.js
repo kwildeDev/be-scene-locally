@@ -22,7 +22,7 @@ module.exports = [
   {
     name: 'Derwentwater Lakeside',
     address_line1: 'Lakeside Road',
-    address_line2: null,
+    address_line2: 'Some Area',
     city: 'Keswick',
     county: 'Cumbria',
     postcode: 'CA12 5PN',
@@ -42,7 +42,7 @@ module.exports = [
   {
     name: 'Keswick Arts Centre',
     address_line1: 'Station Street',
-    address_line2: null,
+    address_line2: 'Suburbia',
     city: 'Keswick',
     county: 'Cumbria',
     postcode: 'CA12 5NX',
@@ -52,7 +52,7 @@ module.exports = [
   {
     name: 'Keswick Wellness Hub',
     address_line1: 'Borrowdale Road',
-    address_line2: null,
+    address_line2: 'High Mountain',
     city: 'Keswick',
     county: 'Cumbria',
     postcode: 'CA12 5NH',
@@ -92,7 +92,7 @@ module.exports = [
   {
     name: 'Fitz Park Sports Ground',
     address_line1: 'Station Road',
-    address_line2: null,
+    address_line2: 'Fitzwich',
     city: 'Keswick',
     county: 'Cumbria',
     postcode: 'CA12 5LT',
