@@ -443,6 +443,98 @@ describe('/api/events/:event_id', () => {
                 expect(body.msg).toBe('Bad Request')
             });
     });
+    test('PATCH 200: returns the existing event object with only the provided fields updated, while all other details remain unchanged', () => {
+        const dataToUpdate = {
+            title: 'Community Coffee Afternoon',
+            start_datetime: '2024-11-12T14:00:00.000Z',
+            end_datetime: '2024-11-05T12:00:00.000Z',
+            venue_id: 5
+        };
+        return request(app)
+            .patch('/api/events/1')
+            .send(dataToUpdate)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.event).toMatchObject(dataToUpdate)
+                expect(body.event.description).toBe("A friendly gathering for locals to chat and connect.")
+                expect(body.event.status).toBe("published")
+                expect(new Date(body.event.updated_at).getTime()).toBeGreaterThan(new Date(body.event.created_at).getTime());
+            });
+    });
+    test('PATCH 200: returns the existing event object with only the status updated, while all other details remain unchanged', () => {
+        const dataToUpdate = {
+            status: 'cancelled'
+        };
+        return request(app)
+            .get('/api/events/1')
+            .expect(200)
+            .then(({ body }) => {
+                const originalEvent = body.event
+
+                return request(app)
+                .patch('/api/events/1')
+                .send(dataToUpdate)
+                .expect(200)
+                .then(({ body }) => {
+                    const updatedEvent = body.event
+                    expect(updatedEvent.status).toBe(dataToUpdate.status)
+                    Object.keys(originalEvent).forEach((key) => {
+                        if (key !== 'status' && key !== 'updated_at') {
+                            expect(updatedEvent[key]).toEqual(originalEvent[key])
+                        }
+                    })
+                    expect(new Date(updatedEvent.updated_at).getTime()).toBeGreaterThan(new Date(updatedEvent.created_at).getTime());
+                });
+            });
+    });
+    test('PATCH 400: responds with an error message when given an invalid event_id', () => {
+        const dataToUpdate = {
+            description: 'Watch cats doing daft things caught on camera',
+        };
+        return request(app)
+            .patch('/api/events/cat-videos')
+            .send(dataToUpdate)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Bad Request')
+            });
+    });
+    test('PATCH 404: responds with an error message when given a valid but non-existent event_id', () => {
+        const dataToUpdate = {
+            title: 'Error message workshop',
+        };
+        return request(app)
+            .patch('/api/events/328576')
+            .send(dataToUpdate)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Event not found or could not be updated')
+            });
+    });
+    test('PATCH 403: responds with an error message on an attempt to change the organisation_id', () => {
+        const dataToUpdate = {
+            organisation_id: 12345,
+        };
+        return request(app)
+            .patch('/api/events/2')
+            .send(dataToUpdate)
+            .expect(403)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Forbidden - you are not allowed to change the organisation ID')
+            });
+    });
+    test('PATCH 400: responds with an error message when the venue ID is null', () => {
+        const dataToUpdate = {
+            venue_id: null,
+        };
+        return request(app)
+            .patch('/api/events/3')
+            .send(dataToUpdate)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Bad Request')
+            });
+    });
 });
 
 describe('/api/events/:event_id/attendees', () => {
