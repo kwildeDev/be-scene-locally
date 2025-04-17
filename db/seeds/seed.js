@@ -145,6 +145,21 @@ const seed = ({
         })
         .then(() => {
             return db.query(`
+                DROP FUNCTION IF EXISTS update_timestamp CASCADE;
+                CREATE FUNCTION update_timestamp() RETURNS TRIGGER AS $$
+                BEGIN
+                    NEW.updated_at = CURRENT_TIMESTAMP;
+                    RETURN NEW;
+                END;
+                $$ LANGUAGE plpgsql;
+                CREATE TRIGGER events_updated_at
+                BEFORE UPDATE ON events
+                FOR EACH ROW
+                EXECUTE FUNCTION update_timestamp();
+            `);
+        })
+        .then(() => {
+            return db.query(`
                 CREATE TABLE attendees (
                     registration_id SERIAL PRIMARY KEY,
                     event_id INT NOT NULL REFERENCES events(event_id) ON DELETE CASCADE,

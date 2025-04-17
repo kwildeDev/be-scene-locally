@@ -19,9 +19,7 @@ exports.fetchEvents = () => {
 exports.fetchEventById = (event_id) => {
     return db
         .query(
-            `SELECT events.event_id, events.organisation_id, organisations.name AS organisation_name, events.title, events.description,
-            events.start_datetime, events.end_datetime, events.venue_id, venues.name AS venue_name, events.category_id, events.subcategory_id, 
-            events.tags, events.is_recurring, events.image_url, events.is_online, events.signup_required 
+            `SELECT events.*, organisations.name AS organisation_name, venues.name AS venue_name
             FROM events 
             INNER JOIN organisations
             ON events.organisation_id = organisations.organisation_id
@@ -52,4 +50,35 @@ exports.createEvent = ({ organisation_id, title, description, start_datetime, en
             .then((result) => {
                 return result.rows[0];
             });
-}
+};
+
+exports.updateEvent = (event_id, dataToUpdate) => {
+    const fieldsToUpdate = Object.keys(dataToUpdate)
+    const values = Object.values(dataToUpdate)
+    const updateStatement = fieldsToUpdate.map((field, index) => `${field} = $${index + 1}`).join(", ");
+    return db
+        .query(`UPDATE events SET ${updateStatement} WHERE event_id = $${fieldsToUpdate.length + 1}
+            RETURNING event_id;`, [...values, event_id])
+        .then(({ rows }) => {
+            if (rows.length === 0) {
+                return Promise.reject({ status: 404, msg: 'Event not found or could not be updated' });
+            }
+            const updatedEventId = rows[0].event_id;
+            return db
+            .query(
+                `SELECT events.*, organisations.name AS organisation_name, venues.name AS venue_name
+                FROM events 
+                INNER JOIN organisations
+                ON events.organisation_id = organisations.organisation_id
+                INNER JOIN venues
+                ON events.venue_id = venues.venue_id
+                WHERE events.event_id = $1;`,[updatedEventId]
+            )
+        })
+        .then(({ rows}) => {
+            if (rows.length === 0) {
+                return Promise.reject({ status: 500, msg: 'Failed to retrieve updated event' });
+            }
+            return rows[0]
+        });
+};
