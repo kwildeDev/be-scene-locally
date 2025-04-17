@@ -39,3 +39,17 @@ exports.fetchEventById = (event_id) => {
             return result.rows[0];
         });
 };
+
+exports.createEvent = ({ organisation_id, title, description, start_datetime, end_datetime, venue_id, category_id, subcategory_id,
+    tags, is_recurring, recurring_schedule, status, image_url, access_link, is_online, signup_required }) => {
+    return db
+        .query(`INSERT INTO events (organisation_id, title, description, start_datetime, end_datetime, venue_id, category_id, subcategory_id,
+            tags, is_recurring, recurring_schedule, status, image_url, access_link, is_online, signup_required)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+                RETURNING *;`, [organisation_id, title, description, start_datetime, end_datetime, venue_id, category_id, subcategory_id,
+                    tags, is_recurring, recurring_schedule, status, image_url, access_link, is_online, signup_required]
+            )
+            .then((result) => {
+                return result.rows[0];
+            });
+}
