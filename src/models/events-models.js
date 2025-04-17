@@ -82,3 +82,17 @@ exports.updateEvent = (event_id, dataToUpdate) => {
             return rows[0]
         });
 };
+
+exports.removeEvent = (event_id) => {
+    return db
+        .query(`SELECT status FROM events WHERE event_id = $1`, [event_id])
+        .then((result) => {
+            if (result.rowCount === 0) {
+                return Promise.reject({ status: 404, msg: "Event Not Found"})
+            }
+            if (result.rows[0].status !== 'draft') {
+                return Promise.reject({ status: 403, msg: 'Forbidden - cannot delete events that have progressed beyond "draft" status'})
+            }
+            return db.query(`DELETE FROM events WHERE event_id = $1`, [event_id])
+        });
+};

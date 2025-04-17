@@ -1,4 +1,4 @@
-const { fetchEvents, fetchEventById, createEvent, updateEvent } = require('../models/events-models');
+const { fetchEvents, fetchEventById, createEvent, updateEvent, removeEvent } = require('../models/events-models');
 
 exports.getEvents = (request, response, next) => {
     fetchEvents()
@@ -34,9 +34,10 @@ exports.postEvent = (request, response, next) => {
 
 exports.patchEvent = (request, response, next) => {
     const { event_id } = request.params
-    const { organisation_id, ...dataToUpdate } = request.body
-    if (organisation_id) {
-        return Promise.reject({ status: 403, msg: 'Forbidden - you are not allowed to change the organisation ID'})
+    const { organisation_id, status } = request.body
+    const dataToUpdate  = { ...request.body };
+    if (organisation_id || status === 'draft') {
+        return Promise.reject({ status: 403, msg: 'Forbidden - certain fields cannot be updated'})
     }
     updateEvent(event_id, dataToUpdate)
         .then((event) => {
@@ -45,4 +46,14 @@ exports.patchEvent = (request, response, next) => {
         .catch((err) => {
             next(err);
         });
+};
+
+exports.deleteEvent = (request, response, next) => {
+    const { event_id } = request.params;
+    removeEvent(event_id).then(() => {
+        response.status(204).send();
+    })
+    .catch((err) => {
+        next(err)
+    });
 };

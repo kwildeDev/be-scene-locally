@@ -1,4 +1,4 @@
-const { getEvents, getEventById, postEvent, patchEvent } = require('../controllers/events-controllers');
+const { getEvents, getEventById, postEvent, patchEvent, deleteEvent } = require('../controllers/events-controllers');
 const { postAttendee } = require('../controllers/attendees-controllers');
 
 const eventsRouter = require('express').Router();
@@ -9,7 +9,8 @@ eventsRouter.route('/')
 
 eventsRouter.route('/:event_id')
     .get(getEventById)
-    .patch(patchEvent);
+    .patch(patchEvent)
+    .delete(deleteEvent);
 
 eventsRouter.route('/:event_id/attendees').post(postAttendee);
 
