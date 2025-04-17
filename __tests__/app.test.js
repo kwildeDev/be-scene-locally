@@ -299,6 +299,107 @@ describe('/api/events', () => {
                 });
             });
     });
+    describe('POST /api/events', () => {
+        const generateEventInput = (overrides = {}) => ({
+            organisation_id: 3,
+            title: 'Tree Planting',
+            description: 'Help us plant sapling trees donated by Trees 4 Life.',
+            start_datetime: '2025-04-19T10:00:00Z',
+            end_datetime: '2025-04-19T12:00:00Z',
+            venue_id: 3,
+            category_id: 3,
+            subcategory_id: 7,
+            tags: ['trees', 'environment', 'volunteer'],
+            is_recurring: false,
+            recurring_schedule: null,
+            status: 'published',
+            image_url: 'tree_planting.jpg',
+            access_link: null,
+            is_online: false,
+            signup_required: false,
+            ...overrides,
+        });
+        const generateExpectedEvent = (overrides = {}) => ({
+            event_id: 21,
+            organisation_id: 3,
+            title: 'Tree Planting',
+            description: 'Help us plant sapling trees donated by Trees 4 Life.',
+            start_datetime: '2025-04-19T10:00:00.000Z',
+            end_datetime: '2025-04-19T12:00:00.000Z',
+            venue_id: 3,
+            category_id: 3,
+            subcategory_id: 7,
+            tags: ['trees', 'environment', 'volunteer'],
+            is_recurring: false,
+            recurring_schedule: null,
+            status: 'published',
+            image_url: 'tree_planting.jpg',
+            access_link: null,
+            is_online: false,
+            signup_required: false,
+            ...overrides,        
+        });
+        test('POST 201: adds a new event', () => {
+            return request(app)
+                .post('/api/events')
+                .send(generateEventInput())
+                .expect(201)
+                .then(({ body }) => {
+                    expect(body.event).toMatchObject(generateExpectedEvent())
+                    expect(body.event).toMatchObject({
+                        created_at: expect.any(String)
+                    })
+                    expect(body.event).toMatchObject({
+                        updated_at: expect.any(String)
+                    })
+                });
+        });
+        test('POST 400: responds with an error when given an invalid organisation_id', () => {
+            return request(app)
+                .post('/api/events')
+                .send(generateEventInput({ organisation_id: 'derwentwater-conservation' }))
+                .expect(400)
+                .then(({ body }) => {
+                    expect(body.msg).toBe('Bad Request')
+                });
+        });
+        test('POST 400: responds with an error when given an invalid venue_id', () => {
+            return request(app)
+                .post('/api/events')
+                .send(generateEventInput({ venue_id: 'derwentwater-lakeside' }))
+                .expect(400)
+                .then(({ body }) => {
+                    expect(body.msg).toBe('Bad Request')
+                });
+        });
+        test('POST 404: responds with an error when given a valid but non-existent organisation_id', () => {
+            return request(app)
+                .post('/api/events')
+                .send(generateEventInput({ organisation_id: 99999 }))
+                .expect(404)
+                .then(({ body }) => {
+                    expect(body.msg).toBe('ORGANISATION ID 99999 Does Not Exist')
+                });
+        });
+        test('POST 404: responds with an error when given a valid but non-existent subcategory_id', () => {
+            return request(app)
+                .post('/api/events')
+                .send(generateEventInput({ subcategory_id: 54321 }))
+                .expect(404)
+                .then(({ body }) => {
+                    expect(body.msg).toBe('SUBCATEGORY ID 54321 Does Not Exist')
+                });
+        });
+        test('POST 404: responds with an error when a non-nullable field is missing', () => {
+            return request(app)
+                .post('/api/events')
+                .send(generateEventInput({ title: null }))
+                .expect(400)
+                .then(({ body }) => {
+                    expect(body.msg).toBe('Bad Request')
+                });
+        });
+    });
 });
 
 describe('/api/events/:event_id', () => {
@@ -417,7 +518,7 @@ describe('/api/events/:event_id/attendees', () => {
         .send(input)
         .expect(404)
         .then(({ body }) => {
-            expect(body.msg).toBe('Not Found')
+            expect(body.msg).toBe('EVENT ID 99999 Does Not Exist')
         });
     });
     test('POST 400: responds with an error message if the user_id is missing', () => {
@@ -437,7 +538,7 @@ describe('/api/events/:event_id/attendees', () => {
         .send(input)
         .expect(404)
         .then(({ body }) => {
-            expect(body.msg).toBe('Not Found')
+            expect(body.msg).toBe('USER ID 99999 Does Not Exist')
         });
     });
 });

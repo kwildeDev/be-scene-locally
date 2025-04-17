@@ -1,11 +1,21 @@
 exports.psqlErrorHandler = (err, request, response, next) => {
-    if (err.code === "23502" || err.code === "22P02") {
-        response.status(400).send({ msg: "Bad Request" });
-    } else if (err.code === "23503") {
-        response.status(404).send({ msg: "Not Found" });
-    } else {
-        next(err);
+    const errorLookup = {
+        "23502": { status: 400, msg: "Bad Request" },
+        "22P02": { status: 400, msg: "Bad Request" },
+        "23503": { status: 404, msg: "Not Found" }
+    };
+    if (err.code === "23503" && err.detail) {
+        const errorMatch = err.detail.match(/Key \(([^)]+)\)=\(([^)]+)\) is not present in table "([^"]+)"/);
+        if (errorMatch) {
+            const [, column, value ] = errorMatch;
+            return response.status(404).send({ msg: `${column.replace("_", " ").toUpperCase()} ${value} Does Not Exist`});
+        }
+    } 
+    const errorResponse = errorLookup[err.code];
+    if (errorResponse) {
+        return response.status(errorResponse.status).send({ msg: errorResponse.msg });
     }
+    next(err);
 };
 
 exports.customErrorHandler = (err, request, response, next) => {
