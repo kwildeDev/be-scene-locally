@@ -520,7 +520,19 @@ describe('/api/events/:event_id', () => {
             .send(dataToUpdate)
             .expect(403)
             .then(({ body }) => {
-                expect(body.msg).toBe('Forbidden - you are not allowed to change the organisation ID')
+                expect(body.msg).toBe('Forbidden - certain fields cannot be updated')
+            });
+    });
+    test('PATCH 403: responds with an error message on an attempt to revert status to "draft"', () => {
+        const dataToUpdate = {
+            status: 'draft',
+        };
+        return request(app)
+            .patch('/api/events/2')
+            .send(dataToUpdate)
+            .expect(403)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Forbidden - certain fields cannot be updated')
             });
     });
     test('PATCH 400: responds with an error message when the venue ID is null', () => {
@@ -534,6 +546,43 @@ describe('/api/events/:event_id', () => {
             .then(({ body }) => {
                 expect(body.msg).toBe('Bad Request')
             });
+    });
+    test('DELETE 204: deletes an event specified by event_id and returns no body', () => {
+        return request(app)
+        .delete('/api/events/4')
+        .expect(204)
+    });
+    test('DELETE 400: responds with an error message if given an invalid event_id', () => {
+        return request(app)
+        .delete('/api/events/rubbish-event')
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Bad Request')
+        });
+    });
+    test('DELETE 403: responds with an error message if event status is not "draft"', () => {
+        return request(app)
+        .delete('/api/events/5')
+        .expect(403)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Forbidden - cannot delete events that have progressed beyond "draft" status')
+        });
+    });
+    test('DELETE 403: responds with an error message if event status is not "draft"', () => {
+        return request(app)
+        .delete('/api/events/6')
+        .expect(403)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Forbidden - cannot delete events that have progressed beyond "draft" status')
+        });
+    });
+    test('DELETE 404: responds with an error message if given a valid but non-existent event_id', () => {
+        return request(app)
+        .delete('/api/events/9999')
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Event Not Found')
+        });
     });
 });
 
