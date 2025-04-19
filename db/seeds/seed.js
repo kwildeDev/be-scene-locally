@@ -56,6 +56,11 @@ const seed = ({
         })
         .then(() => {
             return db.query(`
+                CREATE INDEX idx_organisations_organisation_id ON organisations(organisation_id);
+            `);
+        })
+        .then(() => {
+            return db.query(`
                 CREATE TABLE venues (
                     venue_id SERIAL PRIMARY KEY,
                     name VARCHAR NOT NULL,
@@ -141,6 +146,11 @@ const seed = ({
                     is_online BOOLEAN DEFAULT FALSE,
                     signup_required BOOLEAN DEFAULT TRUE
                 );
+            `);
+        })
+        .then(() => {
+            return db.query(`
+                CREATE INDEX idx_events_organisation_id ON events(organisation_id);
             `);
         })
         .then(() => {
