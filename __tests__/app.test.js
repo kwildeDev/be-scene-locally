@@ -590,6 +590,101 @@ describe('/api/events/:event_id', () => {
 });
 
 describe('/api/events/:event_id/attendees', () => {
+    test('GET 200: returns an array of all attendees for an event', () => {
+        const staffToken = jwt.sign(
+            { user_id: 4, role: 'organiser', organisation_id: 3 },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+        return request(app)
+            .get(`/api/events/3/attendees`)
+            .set(`Authorization`, `Bearer ${staffToken}`)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.attendees).toHaveLength(4);
+                expect(body.attendees).toBeInstanceOf(Array)
+                body.attendees.forEach((attendee) => {
+                    expect(attendee.event_id).toBe(3);
+                    expect(attendee).toHaveProperty('registration_id', expect.any(Number));
+                    expect(attendee).toHaveProperty('user_id', expect.any(Number));
+                    expect(attendee).toHaveProperty('created_at', expect.any(String));
+                });
+            });
+    });
+    test('GET 403: responds with an error if an unauthorised user tries to access', () => {
+        const staffToken = jwt.sign(
+            { user_id: 2, role: 'organiser', organisation_id: 1 },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+        return request(app)
+            .get(`/api/events/3/attendees`)
+            .set(`Authorization`, `Bearer ${staffToken}`)
+            .expect(403)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Forbidden - Access Denied')
+            });
+    });
+    test('GET 400: responds with an error if given an invalid event_id', () => {
+        const staffToken = jwt.sign(
+            { user_id: 4, role: 'organiser', organisation_id: 3 },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+        return request(app)
+            .get(`/api/events/three/attendees`)
+            .set(`Authorization`, `Bearer ${staffToken}`)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Bad Request');
+            });
+    });
+    test('GET 401: responds with an error if no token is provided', () => {
+        return request(app)
+        .get(`/api/events/3/attendees`)
+        .expect(401)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Unauthorised - No Token Provided');
+        });
+    });
+    test('GET 401: responds with an error if an invalid bearer token is provided', () => {
+        const invalidToken = 'not-a-valid-token';
+        return request(app)
+            .get('/api/events/3/attendees')
+            .set('Authorization', `Bearer ${invalidToken}`)
+            .expect(401)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Unauthorised - Invalid Token');
+            });
+    });
+    test('GET 401: responds with an error if an expired token is provided', () => {
+        const staffToken = jwt.sign(
+            { user_id: 4, role: 'organiser', organisation_id: 3 },
+            process.env.JWT_SECRET,
+            { expiresIn: '0s' }
+        );
+        return request(app)
+            .get(`/api/events/3/attendees`)
+            .set(`Authorization`, `Bearer ${staffToken}`)
+            .expect(401)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Token Expired')
+            });
+        });
+    test('GET 404: responds with an error if given a valid but non-existent event_id', () => {
+        const staffToken = jwt.sign(
+            { user_id: 4, role: 'organiser', organisation_id: 0 },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+        return request(app)
+            .get(`/api/events/99999/attendees`)
+            .set(`Authorization`, `Bearer ${staffToken}`)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Event Does Not Exist')
+            });
+        });
     test('POST 201: registers a new attendee to the event and sends it back to the client', () => {
         const input = { user_id: 10 };
         const expectedAttendee = {
@@ -907,19 +1002,19 @@ describe('/api/organisations/:organisation_id/events', () => {
                 expect(body.msg).toBe('Organisation Does Not Exist')
             });
         });
-        test('Database uses indexes for event queries', async () => {
-            const { rows } = await db.query(
-                `EXPLAIN ANALYZE 
-                 SELECT events.event_id, events.title, events.organisation_id, organisations.name AS organiser, venues.name AS venue 
-                 FROM events
-                 INNER JOIN organisations ON events.organisation_id = organisations.organisation_id
-                 INNER JOIN venues ON events.venue_id = venues.venue_id
-                 WHERE events.organisation_id = $1
-                 ORDER BY events.start_datetime ASC;`, [3]
-            );
-            const queryPlan = rows.map(row => row["QUERY PLAN"]).join("\n");
-            expect(queryPlan).toContain('Index Scan using idx_events_organisation_id');
-            expect(queryPlan).toContain('Index Scan using idx_organisations_organisation_id');
-            expect(queryPlan).toContain('Index Scan using venues_pkey');
-        });
+    test('Database uses indexes for event queries', async () => {
+        const { rows } = await db.query(
+            `EXPLAIN ANALYZE 
+                SELECT events.event_id, events.title, events.organisation_id, organisations.name AS organiser, venues.name AS venue 
+                FROM events
+                INNER JOIN organisations ON events.organisation_id = organisations.organisation_id
+                INNER JOIN venues ON events.venue_id = venues.venue_id
+                WHERE events.organisation_id = $1
+                ORDER BY events.start_datetime ASC;`, [3]
+        );
+        const queryPlan = rows.map(row => row["QUERY PLAN"]).join("\n");
+        expect(queryPlan).toContain('Index Scan using idx_events_organisation_id');
+        expect(queryPlan).toContain('Index Scan using idx_organisations_organisation_id');
+        expect(queryPlan).toContain('Index Scan using venues_pkey');
+    });
 });

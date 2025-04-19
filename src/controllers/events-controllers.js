@@ -1,4 +1,5 @@
 const { fetchEvents, fetchEventById, createEvent, updateEvent, removeEvent } = require('../models/events-models');
+const { fetchEventAttendees } = require('../models/attendees-models');
 
 exports.getEvents = (request, response, next) => {
     fetchEvents()
@@ -20,6 +21,18 @@ exports.getEventById = (request, response, next) => {
             next(err);
         });
 };
+
+exports.getEventAttendees = (request, response, next) => {
+    const { event_id } = request.params;
+    const { organisation_id } = request.user;
+    fetchEventAttendees(event_id, organisation_id)
+        .then((attendees) => {
+            response.status(200).send({ attendees });
+        })
+        .catch((err) => {
+            next(err);
+        })
+}
 
 exports.postEvent = (request, response, next) => {
     const newEvent = request.body
