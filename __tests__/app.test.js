@@ -297,11 +297,71 @@ describe('/api/events', () => {
                     expect(event).toHaveProperty('category_id', expect.any(Number));
                     expect(event).toHaveProperty('subcategory_id', expect.any(Number));
                     expect(event).toHaveProperty('is_recurring', expect.any(Boolean));
+                    expect(event).toHaveProperty('created_at', expect.any(String));
                     expect(event).toHaveProperty('image_url', expect.any(String));
                     expect(event).toHaveProperty('is_online', expect.any(Boolean));
                 });
             });
     });
+    test('GET 200: returned array should be sorted by start_datetime in ascending order by default', () => {
+        return request(app)
+            .get('/api/events')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.events).toBeSortedBy("start_datetime", {descending: false })
+            });
+    });
+    test("GET 200: takes a sort_by query and responds with events sorted by the given column name in the default order", () => {
+        return request(app)
+            .get("/api/events?sort_by=created_at")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.events).toBeSortedBy("created_at", { descending: false })
+            });
+    });
+    test("GET 200: responds with events sorted in ascending or descending order by the default column", () => {
+        return request(app)
+            .get("/api/events?order=desc")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.events).toBeSortedBy("start_datetime", { descending: true })
+            });
+    });
+    test("GET 200: responds with events sorted in ascending or descending order by a chosen valid column", () => {
+        return request(app)
+        .get("/api/events?sort_by=venue&order=desc")
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toBeSortedBy("venue", { descending: true })
+        });
+    });
+    test("GET 200: ignores any invalid queries which are included alongside valid ones", () => {
+        return request(app)
+        .get("/api/events?sort_by=organiser&cherries&order=asc")
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(20)
+            expect(body.events).toBeSortedBy("organiser");
+        });
+    });
+    test("GET 400: responds with an error message when given an invalid sort_by query", () => {
+        return request(app)
+        .get("/api/events?sort_by=chips")
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe("Bad Request");
+        });
+    });
+    test("GET 400: responds with an error message when given an invalid order query", () => {
+        return request(app)
+        .get("/api/events?order=alphabetical")
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe("Bad Request");
+        });
+    });
+    
+
     describe('POST /api/events', () => {
         const generateEventInput = (overrides = {}) => ({
             organisation_id: 3,
