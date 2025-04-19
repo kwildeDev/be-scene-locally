@@ -2,7 +2,9 @@ const { fetchEvents, fetchEventById, createEvent, updateEvent, removeEvent } = r
 const { fetchEventAttendees } = require('../models/attendees-models');
 
 exports.getEvents = (request, response, next) => {
-    fetchEvents()
+    const sort_by = request.query.sort_by;
+    const order = request.query.order;
+    fetchEvents(sort_by, order)
         .then((events) => {
             response.status(200).send({ events });
         })

@@ -1,15 +1,20 @@
 const db = require('../../db/connection');
 
-exports.fetchEvents = () => {
+exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc') => {
+    const validSortBys = ['start_datetime', 'created_at', 'organiser', 'venue']
+    const validOrders = ['asc', 'desc']
+    if (!validSortBys.includes(sort_by) || (!validOrders.includes(order))) {
+        return Promise.reject({ status: 400, msg: "Bad Request"})
+    }
     return db
         .query(
-            `SELECT events.event_id, events.title, events.start_datetime, events.category_id, events.subcategory_id, events.is_recurring, events.image_url, events.is_online, organisations.name AS organiser, venues.name AS venue 
+            `SELECT events.event_id, events.title, events.start_datetime, events.category_id, events.subcategory_id, events.is_recurring, events.created_at, events.image_url, events.is_online, organisations.name AS organiser, venues.name AS venue 
             FROM events 
             INNER JOIN organisations
             ON events.organisation_id = organisations.organisation_id
             INNER JOIN venues
             ON events.venue_id = venues.venue_id
-            ORDER BY events.start_datetime ASC;`
+            ORDER BY ${sort_by} ${order};`
         )
         .then(({ rows }) => {
             return rows;

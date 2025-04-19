@@ -40,7 +40,8 @@
   },
   "jest": {
     "setupFilesAfterEnv": [
-      "jest-extended/all"
+      "jest-extended/all",
+      "jest-sorted"
     ],
     "modulePathIgnorePatterns": ["./__tests__/utils"]
   }
