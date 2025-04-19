@@ -4,7 +4,10 @@ const db = require('../db/connection.js');
 const request = require('supertest');
 const app = require('../src/app.js');
 const endpoints = require('../src/endpoints.json');
-const { string } = require('pg-format');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const generateExpiredToken = require('./utils/auth-utils.js');
+require('dotenv').config({ path: '../.env.test'});
 
 beforeEach(() => seed(testData));
 
@@ -193,7 +196,7 @@ describe('/api', () => {
 });
 
 describe('Invalid route handling', () => {
-    it('GET 404: responds with an error message when given an invalid endpoint', () => {
+    test('GET 404: responds with an error message when given an invalid endpoint', () => {
         return request(app)
             .get('/api/banana')
             .expect(404)
@@ -700,6 +703,103 @@ describe('/api/venues', () => {
                     expect(venue).toHaveProperty('county', expect.any(String));
                     expect(venue).toHaveProperty('postcode', expect.any(String));
                 });
+            });
+    });
+});
+
+describe('/api/users/me', () => {
+    let validToken;
+    let testUser;
+    const testEmail = 'curry.sauce@fishandchips.com';
+    const testPassword = 'mushypeas';
+    let hashedPassword;
+    afterAll(() => {
+        return db.query('DELETE FROM users WHERE email = $1', [testEmail]);
+    });
+    test('GET 200: returns the logged-in user object when given a valid token', () => {
+        return bcrypt.hash(testPassword, 10)
+            .then((hash) => {
+                hashedPassword = hash;
+                //console.log('beforeAll: Password hashed');
+                return db
+                .query('INSERT INTO users (email, password_hash, first_name, last_name, role, organisation_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *', 
+                    [testEmail, hashedPassword, 'Chippy', 'Dinner', 'organiser', 2]
+                );
+            })
+            .then((createUserResult) => {
+                testUser = createUserResult.rows[0];
+                //console.log('beforeAll: User created:', testUser);
+                return request(app)
+                    .post('/api/auth/login')
+                    .send({ email: testEmail, password: testPassword });
+            })
+            .then((loginResponse) => {
+                //console.log('beforeAll: Login response status:', loginResponse.status);
+                //console.log('beforeAll: Login response body:', loginResponse.body);
+                validToken = loginResponse.body.token;
+                //console.log('beforeAll: Token obtained:', validToken);
+                return request(app)
+                    .get(`/api/users/me`)
+                    .set('Authorization', `Bearer ${validToken}`)
+                    .expect(200)
+            })
+            .then(({ body }) => {
+                //console.log('Test - user body: ', body.user)
+                expect(body.user.user_id).toBe(testUser.user_id)
+                expect(body.user.email).toBe(testEmail);
+                expect(body.user.first_name).toBe('Chippy');
+                expect(body.user.last_name).toBe('Dinner');
+                expect(body.user.role).toBe('organiser');
+                expect(body.user.organisation_id).toBe(2);
+                expect(body.user.organisation_name).toBe('Keswick Toddler Time');
+            });
+    });
+    test('GET 401: responds with an error if no token is provided', () => {
+        return request(app)
+            .get('/api/users/me')
+            .expect(401)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Unauthorised - No Token Provided');
+            });
+    });
+    test('GET 401: responds with an error if an invalid token format is provided (missing `Bearer ${ }`)', () => {
+        return request(app)
+            .get('/api/users/me')
+            .set('Authorization', validToken)
+            .expect(401)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Unauthorised - Invalid Token Format');
+            });
+    });
+    test('GET 401: responds with an error if an invalid bearer token is provided', () => {
+        const invalidToken = 'cod.and.chips.with.curry.sauce.and.mushy.peas';
+        return request(app)
+            .get('/api/users/me')
+            .set('Authorization', `Bearer ${invalidToken}`)
+            .expect(401)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Unauthorised - Invalid Token');
+            });
+    });
+    test('GET 401: responds with an error if an expired token is provided', () => {
+        return bcrypt.hash(testPassword, 10)
+            .then((hash) => {
+                hashedPassword = hash;
+                return db
+                .query('INSERT INTO users (email, password_hash, first_name, last_name, role, organisation_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;',
+                    [testEmail, hashedPassword, 'Chippy', 'Dinner', 'organiser', 2]
+                );
+            })
+            .then((createUserResult) => {
+                testUser = createUserResult.rows[0];
+                const expiredToken = generateExpiredToken(testUser);
+                return request(app)
+                    .get('/api/users/me')
+                    .set('Authorization', `Bearer ${expiredToken}`)
+                    .expect(401)
+                    .then(({ body }) => {
+                        expect(body.msg).toBe('Token Expired');
+                    });
             });
     });
 });

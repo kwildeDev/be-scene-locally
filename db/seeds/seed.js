@@ -135,7 +135,7 @@ const seed = ({
                     recurring_schedule JSONB,
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                    status VARCHAR(50) NOT NULL,
+                    status VARCHAR(50) NOT NULL DEFAULT 'draft',
                     image_url VARCHAR,
                     access_link VARCHAR,
                     is_online BOOLEAN DEFAULT FALSE,

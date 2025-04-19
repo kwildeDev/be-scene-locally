@@ -30,15 +30,18 @@
     "supertest": "^7.1.0"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "pg": "^8.7.3",
     "pg-format": "^1.0.4"
   },
   "jest": {
     "setupFilesAfterEnv": [
       "jest-extended/all"
-    ]
+    ],
+    "modulePathIgnorePatterns": ["./__tests__/utils"]
   }
 }
