@@ -10,7 +10,6 @@ exports.getEvents = (request, response, next) => {
     }
     Promise.all(promises)
         .then((results) => {
-            console.log(results)
             const events = results[0]
             response.status(200).send({ events });
         })
