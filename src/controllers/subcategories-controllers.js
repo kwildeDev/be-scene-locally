@@ -1,4 +1,5 @@
-const {fetchSubcategoriesByCategory, fetchCategoryIdBySlug } = require('../models/subcategories-models');
+const { fetchSubcategoriesByCategory } = require('../models/subcategories-models');
+const { fetchCategoryIdBySlug } = require('../models/categories-models');
 const app = require('../app');
 
 exports.getSubcategoriesByCategory = (request, response, next) => {
@@ -8,9 +9,6 @@ exports.getSubcategoriesByCategory = (request, response, next) => {
     }
     fetchCategoryIdBySlug(categorySlug)
         .then((category) => {
-            if (!category) {
-                return Promise.reject({ status: 404, msg: "Category not found"})
-            }
             return fetchSubcategoriesByCategory(category.category_id);
         })
         .then((subcategories) => {

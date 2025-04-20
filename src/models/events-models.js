@@ -1,11 +1,13 @@
 const db = require('../../db/connection');
 
-exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc') => {
+exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category) => {
     const validSortBys = ['start_datetime', 'created_at', 'organiser', 'venue']
     const validOrders = ['asc', 'desc']
     if (!validSortBys.includes(sort_by) || (!validOrders.includes(order))) {
         return Promise.reject({ status: 400, msg: "Bad Request"})
     }
+    const categoryStr = category ? `WHERE categories.slug = '${category}'` : ``
+    const sortColumn = sort_by === 'organiser' ? 'organisations.name' : sort_by === 'venue' ? 'venues.name' : `events.${sort_by}`;
     return db
         .query(
             `SELECT events.event_id, events.title, events.start_datetime, events.category_id, events.subcategory_id, events.is_recurring, events.created_at, events.image_url, events.is_online, organisations.name AS organiser, venues.name AS venue 
@@ -14,7 +16,10 @@ exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc') => {
             ON events.organisation_id = organisations.organisation_id
             INNER JOIN venues
             ON events.venue_id = venues.venue_id
-            ORDER BY ${sort_by} ${order};`
+            INNER JOIN categories
+            ON events.category_id = categories.category_id
+            ${categoryStr}
+            ORDER BY ${sortColumn} ${order};`
         )
         .then(({ rows }) => {
             return rows;

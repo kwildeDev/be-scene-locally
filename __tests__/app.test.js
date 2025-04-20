@@ -276,7 +276,7 @@ describe('/api/categories/:category_slug/subcategories', () => {
         .get('/api/categories/not-a-category/subcategories')
         .expect(404)
         .then(({ body }) => {
-            expect(body.msg).toBe("Category not found")
+            expect(body.msg).toBe("Category Not Found")
         });
     });
 });
@@ -308,59 +308,91 @@ describe('/api/events', () => {
             .get('/api/events')
             .expect(200)
             .then(({ body }) => {
-                expect(body.events).toBeSortedBy("start_datetime", {descending: false })
+                expect(body.events).toBeSortedBy('start_datetime', {descending: false })
             });
     });
-    test("GET 200: takes a sort_by query and responds with events sorted by the given column name in the default order", () => {
+    test('GET 200: takes a sort_by query and responds with events sorted by the given column name in the default order', () => {
         return request(app)
-            .get("/api/events?sort_by=created_at")
+            .get('/api/events?sort_by=created_at')
             .expect(200)
             .then(({ body }) => {
-                expect(body.events).toBeSortedBy("created_at", { descending: false })
+                expect(body.events).toBeSortedBy('created_at', { descending: false })
             });
     });
-    test("GET 200: responds with events sorted in ascending or descending order by the default column", () => {
+    test('GET 200: responds with events sorted in ascending or descending order by the default column', () => {
         return request(app)
-            .get("/api/events?order=desc")
+            .get('/api/events?order=desc')
             .expect(200)
             .then(({ body }) => {
-                expect(body.events).toBeSortedBy("start_datetime", { descending: true })
+                expect(body.events).toBeSortedBy('start_datetime', { descending: true })
             });
     });
-    test("GET 200: responds with events sorted in ascending or descending order by a chosen valid column", () => {
+    test('GET 200: responds with events sorted in ascending or descending order by a chosen valid column', () => {
         return request(app)
-        .get("/api/events?sort_by=venue&order=desc")
+        .get('/api/events?sort_by=venue&order=desc')
         .expect(200)
         .then(({ body }) => {
-            expect(body.events).toBeSortedBy("venue", { descending: true })
+            expect(body.events).toBeSortedBy('venue', { descending: true })
         });
     });
-    test("GET 200: ignores any invalid queries which are included alongside valid ones", () => {
+    test('GET 200: ignores any invalid queries which are included alongside valid ones', () => {
         return request(app)
-        .get("/api/events?sort_by=organiser&cherries&order=asc")
+        .get('/api/events?sort_by=organiser&cherries&order=asc')
         .expect(200)
         .then(({ body }) => {
-            expect(body.events).toHaveLength(20)
-            expect(body.events).toBeSortedBy("organiser");
+            expect(body.events).toHaveLength(20);
+            expect(body.events).toBeSortedBy('organiser');
         });
     });
-    test("GET 400: responds with an error message when given an invalid sort_by query", () => {
+    test('GET 200: returns an array of events where the given category is present in the database', () => {
         return request(app)
-        .get("/api/events?sort_by=chips")
+        .get('/api/events?category=sports-recreation')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(2);
+            body.events.forEach((event) => {
+                expect(event.category_id).toBe(10);
+            });
+        });
+    });
+    test('GET 200: returns an empty array of events when given a category that is present in the database but has no events', () => {
+        return db
+                .query('INSERT INTO categories (name, slug, description) VALUES ($1, $2, $3) RETURNING *', 
+                    ['Pets', 'pets', 'Events for pets']
+                )
+        .then(() => {
+            return request(app)
+            .get('/api/events?category=pets')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.events).toHaveLength(0);
+            });
+        });
+    });
+    test('GET 400: responds with an error message when given an invalid sort_by query', () => {
+        return request(app)
+        .get('/api/events?sort_by=chips')
         .expect(400)
         .then(({ body }) => {
-            expect(body.msg).toBe("Bad Request");
+            expect(body.msg).toBe('Bad Request');
         });
     });
-    test("GET 400: responds with an error message when given an invalid order query", () => {
+    test('GET 400: responds with an error message when given an invalid order query', () => {
         return request(app)
-        .get("/api/events?order=alphabetical")
+        .get('/api/events?order=alphabetical')
         .expect(400)
         .then(({ body }) => {
-            expect(body.msg).toBe("Bad Request");
+            expect(body.msg).toBe('Bad Request');
         });
     });
-    
+    test('GET 404: returns an error message when given a category that does not exist in the database', () => {
+        return request(app)
+        .get('/api/events?category=easter-eggs')
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Category Not Found');
+        });
+    });
 
     describe('POST /api/events', () => {
         const generateEventInput = (overrides = {}) => ({
