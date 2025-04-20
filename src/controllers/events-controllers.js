@@ -1,11 +1,17 @@
 const { fetchEvents, fetchEventById, createEvent, updateEvent, removeEvent } = require('../models/events-models');
 const { fetchEventAttendees } = require('../models/attendees-models');
+const { fetchCategoryIdBySlug } = require('../models/categories-models');
 
 exports.getEvents = (request, response, next) => {
-    const sort_by = request.query.sort_by;
-    const order = request.query.order;
-    fetchEvents(sort_by, order)
-        .then((events) => {
+    const { sort_by, order, category } = request.query;
+    const promises = [fetchEvents(sort_by, order, category)]
+    if (category) {
+        promises.push(fetchCategoryIdBySlug(category))
+    }
+    Promise.all(promises)
+        .then((results) => {
+            console.log(results)
+            const events = results[0]
             response.status(200).send({ events });
         })
         .catch((err) => {
