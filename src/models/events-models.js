@@ -1,12 +1,13 @@
 const db = require('../../db/connection');
 
-exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category) => {
+exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, subcategory_id) => {
     const validSortBys = ['start_datetime', 'created_at', 'organiser', 'venue']
     const validOrders = ['asc', 'desc']
     if (!validSortBys.includes(sort_by) || (!validOrders.includes(order))) {
         return Promise.reject({ status: 400, msg: "Bad Request"})
     }
-    const categoryStr = category ? `WHERE categories.slug = '${category}'` : ``
+    const categoryStr = category_id ? `WHERE events.category_id = '${category_id}'` : ``;
+    const subcategoryStr = subcategory_id ? ` AND events.subcategory_id = '${subcategory_id}'` : ``;
     const sortColumn = sort_by === 'organiser' ? 'organisations.name' : sort_by === 'venue' ? 'venues.name' : `events.${sort_by}`;
     return db
         .query(
@@ -16,9 +17,7 @@ exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category) => {
             ON events.organisation_id = organisations.organisation_id
             INNER JOIN venues
             ON events.venue_id = venues.venue_id
-            INNER JOIN categories
-            ON events.category_id = categories.category_id
-            ${categoryStr}
+            ${categoryStr}${subcategoryStr}
             ORDER BY ${sortColumn} ${order};`
         )
         .then(({ rows }) => {

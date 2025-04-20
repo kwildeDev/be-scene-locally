@@ -1,16 +1,26 @@
 const { fetchEvents, fetchEventById, createEvent, updateEvent, removeEvent } = require('../models/events-models');
 const { fetchEventAttendees } = require('../models/attendees-models');
 const { fetchCategoryIdBySlug } = require('../models/categories-models');
+const { fetchSubcategoryIdBySlug } = require('../models/subcategories-models');
 
 exports.getEvents = (request, response, next) => {
-    const { sort_by, order, category } = request.query;
-    const promises = [fetchEvents(sort_by, order, category)]
-    if (category) {
-        promises.push(fetchCategoryIdBySlug(category))
-    }
-    Promise.all(promises)
-        .then((results) => {
-            const events = results[0]
+    const { sort_by, order, category, subcategory } = request.query;
+    if (!category && subcategory) {
+        return next({ status: 400, msg: "Category is required when filtering by subcategory" });
+    }    
+    const categoryPromise = category ? fetchCategoryIdBySlug(category) : Promise.resolve({ category_id: null });
+    categoryPromise
+        .then(({ category_id } = {}) => {
+            if (subcategory) {
+                return fetchSubcategoryIdBySlug(category_id, subcategory)
+                    .then(({ subcategory_id } = {}) => ({ category_id, subcategory_id }));
+            }
+            return { category_id, subcategory_id: null };
+        })
+        .then(({ category_id, subcategory_id }) => {
+            return fetchEvents(sort_by, order, category_id, subcategory_id );
+        })
+        .then(( events ) => {
             response.status(200).send({ events });
         })
         .catch((err) => {

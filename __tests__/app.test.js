@@ -369,6 +369,53 @@ describe('/api/events', () => {
             });
         });
     });
+    test('GET 200: returns an array of events where the given subcategory is present in the database', () => {
+        return request(app)
+        .get('/api/events?category=health-wellbeing&subcategory=fitness-classes')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(1);
+            body.events.forEach((event) => {
+                expect(event.category_id).toBe(6)
+                expect(event.subcategory_id).toBe(13);
+            });
+        });
+    });
+    test('GET 200: returns an empty array of events when given a subcategory that is present in the database but has no events', () => {
+        return db
+                .query('INSERT INTO subcategories (category_id, name, slug, description) VALUES ($1, $2, $3, $4) RETURNING *', 
+                    [10, 'Board Games', 'board-games', 'Board Game Events']
+                )
+        .then(() => {
+            return request(app)
+            .get('/api/events?category=sports-recreation&subcategory=board-games')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.events).toHaveLength(0);
+            });
+        });
+    });
+    test('GET 200: correctly sorts events when filtered by category', () => {
+        return request(app)
+        .get('/api/events?category=health-wellbeing&sort_by=created_at&order=desc')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(2);
+            expect(body.events).toBeSortedBy('created_at', { descending: true })
+            body.events.forEach((event) => {
+                expect(event.category_id).toBe(6)
+            });
+        });
+    })
+    xtest('GET 200: filters events based on whether a search term is present in the event title', () => {
+        return request(app)
+        .get('/api/events?search=club')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(3);
+            expect(body.events).toBeSortedBy('start_datetime', {descending: false })
+        });
+    });
     test('GET 400: responds with an error message when given an invalid sort_by query', () => {
         return request(app)
         .get('/api/events?sort_by=chips')
@@ -392,6 +439,14 @@ describe('/api/events', () => {
         .then(({ body }) => {
             expect(body.msg).toBe('Category Not Found');
         });
+    });
+    test('GET 404: returns an error message when given a subcategory that does not exist in the database', () => {
+        return request(app)        
+        .get('/api/events?category=sports-recreation&subcategory=apology-olympics')        
+        .expect(404)        
+        .then(({ body }) => {            
+            expect(body.msg).toBe('Subcategory Not Found');        
+        });    
     });
 
     describe('POST /api/events', () => {
