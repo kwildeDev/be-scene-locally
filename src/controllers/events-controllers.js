@@ -4,7 +4,7 @@ const { fetchCategoryIdBySlug } = require('../models/categories-models');
 const { fetchSubcategoryIdBySlug } = require('../models/subcategories-models');
 
 exports.getEvents = (request, response, next) => {
-    const { sort_by, order, category, subcategory } = request.query;
+    const { sort_by, order, category, subcategory, search } = request.query;
     if (!category && subcategory) {
         return next({ status: 400, msg: "Category is required when filtering by subcategory" });
     }    
@@ -18,7 +18,7 @@ exports.getEvents = (request, response, next) => {
             return { category_id, subcategory_id: null };
         })
         .then(({ category_id, subcategory_id }) => {
-            return fetchEvents(sort_by, order, category_id, subcategory_id );
+            return fetchEvents(sort_by, order, category_id, subcategory_id, search );
         })
         .then(( events ) => {
             response.status(200).send({ events });

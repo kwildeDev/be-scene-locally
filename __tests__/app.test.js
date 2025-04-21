@@ -407,13 +407,87 @@ describe('/api/events', () => {
             });
         });
     })
-    xtest('GET 200: filters events based on whether a search term is present in the event title', () => {
+    test('GET 200: filters events based on whether a search term is present in the event title', () => {
         return request(app)
         .get('/api/events?search=club')
         .expect(200)
         .then(({ body }) => {
             expect(body.events).toHaveLength(3);
             expect(body.events).toBeSortedBy('start_datetime', {descending: false })
+        });
+    });
+    test('GET 200: filters events on a search term - case insensitivity', () => {
+        return request(app)
+        .get('/api/events?search=CLUB')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(3);
+            expect(body.events).toBeSortedBy('start_datetime', {descending: false })
+        });
+    });
+    test('GET 200: filters events on a search term - special characters % and _ are interpreted literally', () => {
+        return request(app)
+        .get('/api/events?search=club%')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(0);
+        });
+    });
+    test('GET 200: filters events on a search term - special character * is interpreted as a wildcard', () => {
+        return request(app)
+        .get('/api/events?search=loc*')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(4);
+        });
+    });
+    test('GET 200: filters events on a search term - leading and trailing whitespace is ignored', () => {
+        return request(app)
+        .get('/api/events?search= day ')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(3);
+            const titles = body.events.map(event => event.title);
+            expect(titles).toContain('New Year\'s Day Beach Walk');
+            expect(titles).toContain('Sunday Morning Run Club');
+            expect(titles).toContain('Local Shop Saturday Sale');
+        });
+    });
+    test('GET 200: filters events on a search term - whitespace within search term is retained', () => {
+        return request(app)
+        .get('/api/events?search=  club meeting')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(1);
+        });
+    });
+    test('GET 200: filters events on a search term - empty search term returns all events', () => {
+        return request(app)
+        .get('/api/events?search= ')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(20);
+        });
+    });
+    test('GET 200: filters events on a search term - empty array returned if search term not found', () => {
+        return request(app)
+        .get('/api/events?search=vwxyz')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toBeInstanceOf(Array);
+            expect(body.events).toHaveLength(0);
+        });
+    });
+    test('GET 200: filters events on a search term - interaction with sorting query', () => {
+        return request(app)
+        .get('/api/events?search=day&sort_by=venue&order=desc')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(3);
+            expect(body.events).toBeSortedBy('venue', {descending: true })
+            expect(body.events[0].title).toBe('Local Shop Saturday Sale');
+            expect(body.events[1].title).toBe('Sunday Morning Run Club');
+            expect(body.events[2].title).toBe('New Year\'s Day Beach Walk');
         });
     });
     test('GET 400: responds with an error message when given an invalid sort_by query', () => {
