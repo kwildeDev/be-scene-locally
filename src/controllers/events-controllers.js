@@ -4,10 +4,11 @@ const { fetchCategoryIdBySlug } = require('../models/categories-models');
 const { fetchSubcategoryIdBySlug } = require('../models/subcategories-models');
 
 exports.getEvents = (request, response, next) => {
-    const { sort_by, order, category, subcategory, search } = request.query;
+    const { sort_by, order, category, subcategory, search, date } = request.query;
     if (!category && subcategory) {
         return next({ status: 400, msg: "Category is required when filtering by subcategory" });
-    }    
+    }  
+
     const categoryPromise = category ? fetchCategoryIdBySlug(category) : Promise.resolve({ category_id: null });
     categoryPromise
         .then(({ category_id } = {}) => {
@@ -18,7 +19,7 @@ exports.getEvents = (request, response, next) => {
             return { category_id, subcategory_id: null };
         })
         .then(({ category_id, subcategory_id }) => {
-            return fetchEvents(sort_by, order, category_id, subcategory_id, search );
+            return fetchEvents(sort_by, order, category_id, subcategory_id, search, date );
         })
         .then(( events ) => {
             response.status(200).send({ events });

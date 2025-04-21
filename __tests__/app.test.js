@@ -490,6 +490,33 @@ describe('/api/events', () => {
             expect(body.events[2].title).toBe('New Year\'s Day Beach Walk');
         });
     });
+    test('GET 200: filters events on a given date YYYY-MM-DD', () => {
+        return request(app)
+        .get('/api/events?date=2024-11-05')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(2);
+            body.events.forEach((event) => {
+                expect(event.start_datetime.startsWith('2024-11-05')).toBe(true)
+            });
+        });
+    });
+    test('GET 400: responds with an error message when given an invalid date value', () => {
+        return request(app)
+        .get('/api/events?date=chips')
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Invalid Date Value');
+        });
+    });
+    test('GET 400: responds with an error message when given an invalid date format', () => {
+        return request(app)
+        .get('/api/events?date=2024/11/05')
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Invalid Date Format - Please Use YYYY-MM-DD');
+        });
+    });
     test('GET 400: responds with an error message when given an invalid sort_by query', () => {
         return request(app)
         .get('/api/events?sort_by=chips')

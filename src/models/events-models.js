@@ -1,10 +1,21 @@
 const db = require('../../db/connection');
+const { response } = require('../app');
 
-exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, subcategory_id, search) => {
+exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, subcategory_id, search, date) => {
     const validSortBys = ['start_datetime', 'created_at', 'organiser', 'venue']
     const validOrders = ['asc', 'desc']
     if (!validSortBys.includes(sort_by) || (!validOrders.includes(order))) {
-        return Promise.reject({ status: 400, msg: "Bad Request"})
+        return Promise.reject({ status: 400, msg: 'Bad Request'})
+    }
+    
+    if (date) {
+        const parsedDate = new Date(date);
+        if (isNaN(parsedDate)) {
+            return Promise.reject({ status: 400, msg: 'Invalid Date Value' });
+        }
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            return Promise.reject({ status: 400, msg: 'Invalid Date Format - Please Use YYYY-MM-DD' });
+        }
     }
     
     let queryStr = `
@@ -33,6 +44,10 @@ exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, s
         whereClause.push(`events.title ILIKE $${queryParams.length + 1}`);
         queryParams.push(`%${formattedSearch}%`);
     }
+    if (date) {
+        whereClause.push(`DATE(events.start_datetime) = $${queryParams.length + 1}`);
+        queryParams.push(date)
+    }
     if (whereClause.length > 0) {
         queryStr += ` WHERE ${whereClause.join(' AND ')}`;
     }
@@ -45,54 +60,6 @@ exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, s
             return rows
         });
 };
-
-/*
-exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, subcategory_id, search) => {
-    const validSortBys = ['start_datetime', 'created_at', 'organiser', 'venue'];
-    const validOrders = ['asc', 'desc'];
-
-    if (!validSortBys.includes(sort_by) || !validOrders.includes(order)) {
-        return Promise.reject({ status: 400, msg: "Bad Request" });
-    }
-
-    let queryStr = `
-        SELECT events.event_id, events.title, events.start_datetime, events.is_recurring, 
-               events.category_id, events.subcategory_id, events.created_at, 
-               events.image_url, events.is_online, organisations.name AS organiser, venues.name AS venue 
-        FROM events
-        INNER JOIN organisations ON events.organisation_id = organisations.organisation_id
-        INNER JOIN venues ON events.venue_id = venues.venue_id
-    `;
-
-    const queryParams = [];
-    const filters = [];
-
-    if (category_id) {
-        filters.push(`events.category_id = $${queryParams.length + 1}`);
-        queryParams.push(category_id);
-    }
-    if (subcategory_id) {
-        filters.push(`events.subcategory_id = $${queryParams.length + 1}`);
-        queryParams.push(subcategory_id);
-    }
-    if (search) {
-        filters.push(`events.title ILIKE $${queryParams.length + 1}`);
-        queryParams.push(`%${search}%`);
-    }
-
-    if (filters.length) {
-        queryStr += ` WHERE ` + filters.join(' AND ');
-    }
-
-    const sortColumn = sort_by === 'organiser' ? 'organisations.name' : sort_by === 'venue' ? 'venues.name' : `events.${sort_by}`;
-    queryStr += ` ORDER BY ${sortColumn} ${order}`;
-
-    return db.query(queryStr, queryParams)
-        .then(({ rows }) => rows);
-};
-*/
-
-
 
 exports.fetchEventById = (event_id) => {
     return db
