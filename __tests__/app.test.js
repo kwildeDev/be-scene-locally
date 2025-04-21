@@ -501,6 +501,48 @@ describe('/api/events', () => {
             });
         });
     });
+    test('GET 200: filters events that have any of the provided tags', () => {
+        return request(app)
+        .get('/api/events?tags=local,market')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(1);
+            body.events.forEach(event => {
+                expect(event.tags.some(tag => ['local', 'market'].includes(tag))).toBe(true);
+            });
+        });
+    });
+    test('GET 200: filters events that have a given valid venue', () => {
+        return request(app)
+        .get('/api/events?venue=Keswick Community Centre')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(2);
+            body.events.forEach((event) => {
+                expect(event.venue).toBe('Keswick Community Centre');
+            });
+        })
+    });
+    test('GET 200: returns an empty array if no events match the venue name', () => {
+        return request(app)
+        .get('/api/events?venue=Buckingham Palace')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toBeInstanceOf(Array);
+            expect(body.events).toHaveLength(0);
+        });
+    });
+    test('GET 200: filters events by venue name case-insensitively', () => {
+        return request(app)
+        .get('/api/events?venue=keswick%20community%20centre')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(2);
+            body.events.forEach((event) => {
+                expect(event.venue).toBe('Keswick Community Centre');
+            });
+        });
+    });
     test('GET 400: responds with an error message when given an invalid date value', () => {
         return request(app)
         .get('/api/events?date=chips')
