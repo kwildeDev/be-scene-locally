@@ -1,7 +1,7 @@
 const db = require('../../db/connection');
 const { response } = require('../app');
 
-exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, subcategory_id, search, date) => {
+exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, subcategory_id, search, date, tags, venue) => {
     const validSortBys = ['start_datetime', 'created_at', 'organiser', 'venue']
     const validOrders = ['asc', 'desc']
     if (!validSortBys.includes(sort_by) || (!validOrders.includes(order))) {
@@ -20,7 +20,7 @@ exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, s
     
     let queryStr = `
     SELECT events.event_id, events.title, events.start_datetime, events.is_recurring, events.category_id, events.subcategory_id, 
-            events.created_at, events.image_url, events.is_online, organisations.name AS organiser, venues.name AS venue 
+            events.tags, events.created_at, events.image_url, events.is_online, organisations.name AS organiser, venues.name AS venue 
     FROM events
     INNER JOIN organisations ON events.organisation_id = organisations.organisation_id
     INNER JOIN venues ON events.venue_id = venues.venue_id
@@ -34,7 +34,7 @@ exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, s
     }
     if (subcategory_id) {
         whereClause.push(`events.subcategory_id = $${queryParams.length + 1}`);
-        queryParams.push(subcategory_id)
+        queryParams.push(subcategory_id);
     }
     if (search) {
         const formattedSearch = search
@@ -46,14 +46,25 @@ exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, s
     }
     if (date) {
         whereClause.push(`DATE(events.start_datetime) = $${queryParams.length + 1}`);
-        queryParams.push(date)
+        queryParams.push(date);
     }
+    if (tags) {
+        const tagArray = Array.isArray(tags) ? tags : tags.split(',');
+        whereClause.push(`tags @> $${queryParams.length + 1}`);
+        queryParams.push(tagArray);
+    }
+    if (venue) {
+        whereClause.push(`LOWER(venues.name) = LOWER($${queryParams.length + 1})`);
+        queryParams.push(venue);
+    }
+
     if (whereClause.length > 0) {
         queryStr += ` WHERE ${whereClause.join(' AND ')}`;
     }
     const sortColumn = sort_by === 'organiser' ? 'organisations.name' : sort_by === 'venue' ? 'venues.name' : `events.${sort_by}`;
 
     queryStr += ` ORDER BY ${sortColumn} ${order};`;
+
     return db
         .query(queryStr, queryParams)
         .then(({ rows }) => {
