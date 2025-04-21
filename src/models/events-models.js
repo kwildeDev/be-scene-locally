@@ -1,29 +1,98 @@
 const db = require('../../db/connection');
 
-exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, subcategory_id) => {
+exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, subcategory_id, search) => {
     const validSortBys = ['start_datetime', 'created_at', 'organiser', 'venue']
     const validOrders = ['asc', 'desc']
     if (!validSortBys.includes(sort_by) || (!validOrders.includes(order))) {
         return Promise.reject({ status: 400, msg: "Bad Request"})
     }
-    const categoryStr = category_id ? `WHERE events.category_id = '${category_id}'` : ``;
-    const subcategoryStr = subcategory_id ? ` AND events.subcategory_id = '${subcategory_id}'` : ``;
+    
+    let queryStr = `
+    SELECT events.event_id, events.title, events.start_datetime, events.is_recurring, events.category_id, events.subcategory_id, 
+            events.created_at, events.image_url, events.is_online, organisations.name AS organiser, venues.name AS venue 
+    FROM events
+    INNER JOIN organisations ON events.organisation_id = organisations.organisation_id
+    INNER JOIN venues ON events.venue_id = venues.venue_id
+    `;
+    const whereClause = [];
+    const queryParams = [];
+
+    if (category_id) {
+        whereClause.push(`events.category_id = $${queryParams.length + 1}`);
+        queryParams.push(category_id);
+    }
+    if (subcategory_id) {
+        whereClause.push(`events.subcategory_id = $${queryParams.length + 1}`);
+        queryParams.push(subcategory_id)
+    }
+    if (search) {
+        const formattedSearch = search
+            .replace(/([%_])/g, '\\$1')
+            .replace(/\*/g, '%')
+            .trim();
+        whereClause.push(`events.title ILIKE $${queryParams.length + 1}`);
+        queryParams.push(`%${formattedSearch}%`);
+    }
+    if (whereClause.length > 0) {
+        queryStr += ` WHERE ${whereClause.join(' AND ')}`;
+    }
     const sortColumn = sort_by === 'organiser' ? 'organisations.name' : sort_by === 'venue' ? 'venues.name' : `events.${sort_by}`;
+
+    queryStr += ` ORDER BY ${sortColumn} ${order};`;
     return db
-        .query(
-            `SELECT events.event_id, events.title, events.start_datetime, events.category_id, events.subcategory_id, events.is_recurring, events.created_at, events.image_url, events.is_online, organisations.name AS organiser, venues.name AS venue 
-            FROM events 
-            INNER JOIN organisations
-            ON events.organisation_id = organisations.organisation_id
-            INNER JOIN venues
-            ON events.venue_id = venues.venue_id
-            ${categoryStr}${subcategoryStr}
-            ORDER BY ${sortColumn} ${order};`
-        )
+        .query(queryStr, queryParams)
         .then(({ rows }) => {
-            return rows;
+            return rows
         });
 };
+
+/*
+exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, subcategory_id, search) => {
+    const validSortBys = ['start_datetime', 'created_at', 'organiser', 'venue'];
+    const validOrders = ['asc', 'desc'];
+
+    if (!validSortBys.includes(sort_by) || !validOrders.includes(order)) {
+        return Promise.reject({ status: 400, msg: "Bad Request" });
+    }
+
+    let queryStr = `
+        SELECT events.event_id, events.title, events.start_datetime, events.is_recurring, 
+               events.category_id, events.subcategory_id, events.created_at, 
+               events.image_url, events.is_online, organisations.name AS organiser, venues.name AS venue 
+        FROM events
+        INNER JOIN organisations ON events.organisation_id = organisations.organisation_id
+        INNER JOIN venues ON events.venue_id = venues.venue_id
+    `;
+
+    const queryParams = [];
+    const filters = [];
+
+    if (category_id) {
+        filters.push(`events.category_id = $${queryParams.length + 1}`);
+        queryParams.push(category_id);
+    }
+    if (subcategory_id) {
+        filters.push(`events.subcategory_id = $${queryParams.length + 1}`);
+        queryParams.push(subcategory_id);
+    }
+    if (search) {
+        filters.push(`events.title ILIKE $${queryParams.length + 1}`);
+        queryParams.push(`%${search}%`);
+    }
+
+    if (filters.length) {
+        queryStr += ` WHERE ` + filters.join(' AND ');
+    }
+
+    const sortColumn = sort_by === 'organiser' ? 'organisations.name' : sort_by === 'venue' ? 'venues.name' : `events.${sort_by}`;
+    queryStr += ` ORDER BY ${sortColumn} ${order}`;
+
+    return db.query(queryStr, queryParams)
+        .then(({ rows }) => rows);
+};
+*/
+
+
 
 exports.fetchEventById = (event_id) => {
     return db
