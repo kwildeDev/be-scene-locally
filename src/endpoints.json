@@ -3,111 +3,453 @@
         "description": "serves up a json representation of all the available endpoints of the api"
     },
     "GET /api/categories": {
-        "description": "serves an array of all categories",
+        "description": "serves an array of all categories, sorted by name in ascending order by default",
         "queries": [],
         "exampleResponse": [
             {
                 "category_id": 1,
                 "name": "Community & Social",
                 "description": "Local gatherings, neighbourhood events, and community initiatives."
-              },
-              {
+            },
+            {
                 "category_id": 2,
                 "name": "Family & Children",
                 "description": "Activities, workshops, and events for families and children of all ages."
-              },
-              {
+            },
+            {
                 "category_id": 3,
                 "name": "Environment & Outdoors",
                 "description": "Events focused on environmental care, outdoor activities, and enjoying nature."
-              }
+            }
         ]
     },
-    "GET /api/subcategories": {
-        "description": "serves an array of all subcategories",
+    "GET /api/categories/:category_slug/subcategories": {
+        "description": "serves an array of all available subcategories for a single category, sorted by name in ascending order by default",
         "queries": [],
         "exampleResponse": [
             {
                 "subcategory_id": 8,
                 "category_id": 3,
                 "name": "Beach Cleanups",
+                "slug": "beach-cleanups",
                 "description": "Volunteer events to clean the local beach."
-              },
-              {
+            },
+            {
                 "subcategory_id": 9,
                 "category_id": 4,
                 "name": "Local Shop Promotions",
+                "slug": "local-shop-promotions",
                 "description": "Special offers and promotions from local shops."
-              },
-              {
+            },
+            {
                 "subcategory_id": 10,
                 "category_id": 4,
                 "name": "Farmers Markets",
+                "slug": "farmers-markets",
                 "description": "Local farmers markets and food stalls."
-              },
-              {
+            },
+            {
                 "subcategory_id": 11,
                 "category_id": 5,
                 "name": "Art Exhibitions",
+                "slug": "art-exhibitions",
                 "description": "Displays of local artwork and crafts."
-              }
+            }
+        ],
+        "errorResponses": [
+            { "status": 404, "msg": "Subcategory Not Found" }
         ]
     },
     "GET /api/events": {
-        "description": "serves an array of all events",
-        "queries": [],
-        "exampleResponse": []
+        "description": "serves an array of all events, sorted by start_datetime in ascending order by default",
+        "queries": {
+            "sort_by": ["start_datetime", "created_at", "organiser", "venue"],
+            "order": ["asc", "desc"],
+            "category": ["string (category.slug)"],
+            "subcategory_id": ["string (subcategory.slug)"],
+            "search": ["string (case-insensitive, * as wildcard)"],
+            "date": ["YYYY-MM-DD"],
+            "venue": ["string (case-insensitive venue name)"],
+            "tags": ["string (comma-separated)"]
+        },
+        "exampleResponse": [
+            {
+                "event_id": 2,
+                "title": "Toddler Time: Story & Play",
+                "start_datetime": "2024-11-05T09:30:00.000Z",
+                "is_recurring": true,
+                "category_id": 2,
+                "subcategory_id": 5,
+                "tags": ["family-friendly", "kids", "playtime"],
+                "created_at": "2025-04-21T19:25:59.102Z",
+                "image_url": "toddler_time.jpg",
+                "is_online": false,
+                "organiser": "Keswick Toddler Time",
+                "venue": "Keswick Library"
+            },
+            {
+                "event_id": 1,
+                "title": "Community Coffee Morning",
+                "start_datetime": "2024-11-05T10:00:00.000Z",
+                "is_recurring": true,
+                "category_id": 1,
+                "subcategory_id": 1,
+                "tags": ["social", "networking", "community"],
+                "created_at": "2025-04-21T19:25:59.102Z",
+                "image_url": "community_coffee.jpg",
+                "is_online": false,
+                "organiser": "Keswick Community Network",
+                "venue": "Keswick Community Centre"
+            },
+            {
+                "event_id": 3,
+                "title": "River Cleanup Volunteers",
+                "start_datetime": "2024-11-10T10:00:00.000Z",
+                "is_recurring": false,
+                "category_id": 3,
+                "subcategory_id": 7,
+                "tags": ["environment", "volunteering", "nature"],
+                "created_at": "2025-04-21T19:25:59.102Z",
+                "image_url": "river_cleanup.jpg",
+                "is_online": false,
+                "organiser": "Derwentwater Conservation Group",
+                "venue": "Derwentwater Lakeside"
+            }
+        ],
+        "errorResponses": [
+        	{ "status": 400, "msg": "Bad Request" },
+        	{ "status": 400, "msg": "Invalid Date Value" },
+        	{ "status": 400, "msg": "Invalid Date Format - Please Use YYYY-MM-DD" },
+        	{ "status": 404, "msg": "Category Not Found" },
+        	{ "status": 404, "msg": "Subcategory Not Found" }
+    	],
+        "exampleQueries": [
+        	"/api/events?sort_by=created_at",
+        	"/api/events?order=desc",
+        	"/api/events?sort_by=venue&order=desc",
+        	"/api/events?category=sports-recreation",
+        	"/api/events?category=health-wellbeing&subcategory=fitness-classes",
+        	"/api/events?search=club",
+        	"/api/events?date=2024-11-05",
+        	"/api/events?tags=local,market",
+        	"/api/events?venue=Keswick Community Centre",
+        	"/api/events?search=day&sort_by=venue&order=desc"
+    	]
     },
     "GET /api/events/:event_id": {
         "description": "serves a single event by event ID number",
         "queries": [],
-        "exampleResponse": []
+        "exampleResponse": [
+            {
+                "event": {
+                    "event_id": 5,
+                    "organisation_id": 5,
+                    "title": "Art Exhibition: Local Artists",
+                    "description": "Exhibition showcasing the work of local artists.",
+                    "start_datetime": "2024-11-20T18:00:00.000Z",
+                    "end_datetime": "2024-11-20T21:00:00.000Z",
+                    "venue_id": 5,
+                    "category_id": 5,
+                    "subcategory_id": 11,
+                    "tags": ["art", "exhibition", "local"],
+                    "is_recurring": false,
+                    "recurring_schedule": null,
+                    "created_at": "2025-04-21T19:44:25.029Z",
+                    "updated_at": "2025-04-21T19:44:25.029Z",
+                    "status": "published",
+                    "image_url": "art_exhibition.jpg",
+                    "access_link": null,
+                    "is_online": false,
+                    "signup_required": true,
+                    "organisation_name": "Keswick Arts Collective",
+                    "venue_name": "Keswick Arts Centre"
+                }
+            }
+        ],
+        "errorResponses": [
+        	{ "status": 404, "msg": "Event not found" },
+        	{ "status": 400, "msg": "Bad Request" }
+    	]
     },
     "POST /api/events/:event_id/attendees": {
         "description": "adds an attendee for an event",
         "queries": [],
-        "exampleResponse": []
+        "exampleResponse": [
+            {
+                "attendee": {
+                    "registration_id": 21,
+                    "event_id": 8,
+                    "user_id": 10,
+                    "created_at": "2025-04-21T19:49:22.535Z"
+                }
+            }
+        ],
+        "errorResponses": [
+        	{ "status": 400, "msg": "Bad Request" },
+        	{ "status": 404, "msg": "EVENT ID <event_id> Does Not Exist" },
+        	{ "status": 404, "msg": "USER ID <user_id> Does Not Exist" }
+    	]
     },
     "GET /api/venues": {
         "description": "serves an array of all venues",
         "queries": [],
-        "exampleResponse": []
+        "exampleResponse": [
+            {
+                "venues": [
+                    {
+                        "venue_id": 3,
+                        "name": "Derwentwater Lakeside",
+                        "address_line1": "Lakeside Road",
+                        "address_line2": "Some Area",
+                        "city": "Keswick",
+                        "county": "Cumbria",
+                        "postcode": "CA12 5PN"
+                    },
+                    {
+                        "venue_id": 10,
+                        "name": "Fitz Park Sports Ground",
+                        "address_line1": "Station Road",
+                        "address_line2": "Fitzwich",
+                        "city": "Keswick",
+                        "county": "Cumbria",
+                        "postcode": "CA12 5LT"
+                    },
+                    {
+                        "venue_id": 5,
+                        "name": "Keswick Arts Centre",
+                        "address_line1": "Station Street",
+                        "address_line2": "Suburbia",
+                        "city": "Keswick",
+                        "county": "Cumbria",
+                        "postcode": "CA12 5NX"
+                    }
+                ]
+            }
+        ]
     },
     "POST /api/events": {
         "description": "adds a new event",
         "queries": [],
-        "exampleResponse": []
+        "exampleResponse": [
+            {
+                "event": {
+                    "event_id": 21,
+                    "organisation_id": 3,
+                    "title": "Tree Planting",
+                    "description": "Help us plant sapling trees donated by Trees 4 Life.",
+                    "start_datetime": "2025-04-19T10:00:00.000Z",
+                    "end_datetime": "2025-04-19T12:00:00.000Z",
+                    "venue_id": 3,
+                    "category_id": 3,
+                    "subcategory_id": 7,
+                    "tags": ["trees", "environment", "volunteer"],
+                    "is_recurring": false,
+                    "recurring_schedule": null,
+                    "created_at": "2025-04-21T19:42:03.640Z",
+                    "updated_at": "2025-04-21T19:42:03.640Z",
+                    "status": "published",
+                    "image_url": "tree_planting.jpg",
+                    "access_link": null,
+                    "is_online": false,
+                    "signup_required": false
+                }
+            }
+        ],
+        "security": ["Requires valid JWT token"],
+    	"errorResponses": [
+        	{ "status": 400, "msg": "Bad Request" },
+        	{ "status": 404, "msg": "ORGANISATION ID <id> Does Not Exist" },
+        	{ "status": 404, "msg": "SUBCATEGORY ID <id> Does Not Exist" },
+        	{ "status": 401, "msg": "Unauthorised - No Token Provided" },
+        	{ "status": 401, "msg": "Unauthorised - Invalid Token" },
+        	{ "status": 401, "msg": "Token Expired" }
+    	]
     },
     "PATCH /api/events/:event_id": {
         "description": "updates a single event",
         "queries": [],
-        "exampleResponse": []
+        "exampleResponse": [
+            {
+                "event": {
+                    "event_id": 1,
+                    "organisation_id": 1,
+                    "title": "Community Coffee Afternoon",
+                    "description": "A friendly gathering for locals to chat and connect.",
+                    "start_datetime": "2024-11-12T14:00:00.000Z",
+                    "end_datetime": "2024-11-12T16:00:00.000Z",
+                    "venue_id": 5,
+                    "category_id": 1,
+                    "subcategory_id": 1,
+                    "tags": ["community", "social", "coffee"],
+                    "is_recurring": true,
+                    "recurring_schedule": {
+                        "day": "Tuesday",
+                        "frequency": "Weekly"
+                    },
+                    "created_at": "2025-04-21T20:00:39.786Z",
+                    "updated_at": "2025-04-21T20:00:40.011Z",
+                    "status": "published",
+                    "image_url": "community_coffee.jpg",
+                    "access_link": null,
+                    "is_online": false,
+                    "signup_required": true,
+                    "organisation_name": "Keswick Community Network",
+                    "venue_name": "Keswick Arts Centre"
+                }
+            }
+        ],
+        "security": ["Requires valid JWT token"],
+        "errorResponses": [
+        	{ "status": 400, "msg": "Bad Request (invalid event_id or input)" },
+        	{ "status": 404, "msg": "Event not found or could not be updated" },
+        	{ "status": 403, "msg": "Forbidden - certain fields cannot be updated" },
+        	{ "status": 401, "msg": "Unauthorised - No Token Provided" },
+        	{ "status": 401, "msg": "Unauthorised - Invalid Token" },
+        	{ "status": 401, "msg": "Token Expired" }
+    	]
     },
     "DELETE /api/events/:event_id": {
         "description": "deletes a single event",
         "queries": [],
-        "exampleResponse": []
+        "exampleResponse": null,
+        "security": ["Requires valid JWT token", "Event status must be 'draft'"],
+    	"errorResponses": [
+        	{ "status": 400, "msg": "Bad Request" },
+        	{ "status": 403, "msg": "Forbidden - cannot delete events that have progressed beyond 'draft' status" },
+        	{ "status": 404, "msg": "Event Not Found" },
+        	{ "status": 401, "msg": "Unauthorised - No Token Provided" },
+        	{ "status": 401, "msg": "Unauthorised - Invalid Token" },
+        	{ "status": 401, "msg": "Token Expired" }
+    	]
     },
-    "GET /api/users/:user_id": {
-        "description": "serves a single user by User ID number",
+    "GET /api/users/me": {
+        "description": "serves a single user object for the authenticated user (requires authentication)",
         "queries": [],
-        "exampleResponse": []
+        "exampleResponse": [
+            {
+                "user": {
+                    "user_id": 11,
+                    "email": "curry.sauce@fishandchips.com",
+                    "first_name": "Chippy",
+                    "last_name": "Dinner",
+                    "role": "organiser",
+                    "organisation_id": 2,
+                    "organisation_name": "Keswick Toddler Time"
+                }
+            }
+        ],
+        "security": ["Requires valid JWT token"],
+    	"errorResponses": [
+        	{ "status": 401, "msg": "Unauthorised - No Token Provided" },
+        	{ "status": 401, "msg": "Unauthorised - Invalid Token Format" },
+        	{ "status": 401, "msg": "Unauthorised - Invalid Token" },
+        	{ "status": 401, "msg": "Token Expired" }
+    	]
     },
     "GET /api/organisations/:organisation_id/events": {
-        "description": "serves an array of all events for a single organisation",
+        "description": "serves an array of all events for a single organisation (requires authentication for an organiser of that organisation)",
         "queries": [],
-        "exampleResponse": []
+        "exampleResponse": [
+            {
+                "events": [
+                    {
+                        "event_id": 3,
+                        "title": "River Cleanup Volunteers",
+                        "status": "published",
+                        "start_datetime": "2024-11-10T10:00:00.000Z",
+                        "category_id": 3,
+                        "subcategory_id": 7,
+                        "is_recurring": false,
+                        "image_url": "river_cleanup.jpg",
+                        "is_online": false,
+                        "organisation_id": 3,
+                        "venue": "Derwentwater Lakeside"
+                    },
+                    {
+                        "event_id": 13,
+                        "title": "Beginner's Photography Workshop",
+                        "status": "published",
+                        "start_datetime": "2025-01-15T18:30:00.000Z",
+                        "category_id": 9,
+                        "subcategory_id": 18,
+                        "is_recurring": false,
+                        "image_url": "photography_workshop.jpg",
+                        "is_online": false,
+                        "organisation_id": 3,
+                        "venue": "Keswick Arts Centre"
+                    }
+                ]
+            }
+        ],
+        "security": ["Requires valid JWT token", "User must be an organiser belonging to the specified organisation"],
+    	"errorResponses": [
+        	{ "status": 400, "msg": "Bad Request" },
+        	{ "status": 401, "msg": "Unauthorised - No Token Provided" },
+        	{ "status": 401, "msg": "Unauthorised - Invalid Token" },
+        	{ "status": 401, "msg": "Token Expired" },
+        	{ "status": 403, "msg": "Forbidden - Access Denied" },
+        	{ "status": 404, "msg": "Organisation Does Not Exist" }
+    	]
     },
     "GET /api/events/:event_id/attendees": {
-        "description": "serves an array of all attendees for a single event",
+        "description": "serves an array of all attendees for a single event (requires organiser role and belonging to the event's organisation)",
         "queries": [],
-        "exampleResponse": []
+        "exampleResponse": [
+            {
+                "attendees": [
+                    {
+                        "registration_id": 6,
+                        "event_id": 3,
+                        "user_id": 7,
+                        "created_at": "2024-11-03T12:00:00.000Z"
+                    },
+                    {
+                        "registration_id": 7,
+                        "event_id": 3,
+                        "user_id": 9,
+                        "created_at": "2024-11-03T12:15:00.000Z"
+                    },
+                    {
+                        "registration_id": 8,
+                        "event_id": 3,
+                        "user_id": 10,
+                        "created_at": "2024-11-03T12:30:00.000Z"
+                    },
+                    {
+                        "registration_id": 9,
+                        "event_id": 3,
+                        "user_id": 5,
+                        "created_at": "2024-11-03T12:45:00.000Z"
+                    }
+                ]
+            }
+        ],
+        "security": ["Requires valid JWT token with organiser role for the event's organisation"],
+        "errorResponses": [
+        	{ "status": 400, "msg": "Bad Request (invalid event_id)" },
+        	{ "status": 401, "msg": "Unauthorised - No Token Provided" },
+        	{ "status": 401, "msg": "Unauthorised - Invalid Token" },
+        	{ "status": 401, "msg": "Token Expired" },
+        	{ "status": 403, "msg": "Forbidden - Access Denied" },
+        	{ "status": 404, "msg": "Event Does Not Exist" }
+    	]
     },
     "POST /api/auth/login": {
-        "description": "authenticates a user with their email and password, returning an access token for secure API requests",
+        "description": "Authenticates a user with their email and password, returning an access token for secure API requests.",
         "queries": [],
-        "exampleResponse": [],
-        "errorResponses": [],
-        "security": []
+        "exampleRequestBody": {
+        	"email": "paddingtonbear@thebrowns.com",
+        	"password": "marmalade123"
+    	},
+        "exampleResponse": {
+            "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVC..."
+        },
+        "errorResponses": [
+            { "status": 401, "msg": "Unauthorised - No Token Provided" },
+            { "status": 401, "msg": "Unauthorised - Invalid Token Format" },
+            { "status": 401, "msg": "Unauthorised - Invalid Token" },
+            { "status": 401, "msg": "Token Expired" }
+        ],
+        "security": ["Requires valid user credentials"]
     }
 }

@@ -13,7 +13,7 @@ exports.fetchUserByEmail = (email) => {
 exports.fetchUserById = (user_id) => {
     return db
         .query(
-            `SELECT users.user_id, users.email, users.password_hash, users.first_name, users.last_name, users.role, users.organisation_id, organisations.name AS organisation_name
+            `SELECT users.user_id, users.email, users.first_name, users.last_name, users.role, users.organisation_id, organisations.name AS organisation_name
             FROM users
             LEFT JOIN organisations
             ON users.organisation_id = organisations.organisation_id
