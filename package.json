@@ -7,7 +7,7 @@
     "setup-dbs": "psql -f ./db/setup.sql",
     "seed": "node ./db/seeds/run-seed.js",
     "test-seed": "node ./db/seeds/run-test-seed.js",
-    "test": "jest",
+    "test": "jest ./__tests__/app.test.js --runInBand --verbose",
     "prepare": "husky install"
   },
   "repository": {
