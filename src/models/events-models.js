@@ -1,7 +1,7 @@
 const db = require('../../db/connection');
 const { response } = require('../app');
 
-exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, subcategory_id, search, date, tags, venue) => {
+exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, subcategory_id, search, date, tags, venue, organiser, recurring, online) => {
     const validSortBys = ['start_datetime', 'created_at', 'organiser', 'venue']
     const validOrders = ['asc', 'desc']
     if (!validSortBys.includes(sort_by) || (!validOrders.includes(order))) {
@@ -57,6 +57,18 @@ exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, s
         whereClause.push(`LOWER(venues.name) = LOWER($${queryParams.length + 1})`);
         queryParams.push(venue);
     }
+    if (organiser) {
+        whereClause.push(`LOWER(organisations.name) = LOWER($${queryParams.length + 1})`);
+        queryParams.push(organiser);
+    }
+    if (recurring) {
+        whereClause.push(`events.is_recurring = $${queryParams.length + 1}`);
+        queryParams.push(recurring);
+    }
+    if (online) {
+        whereClause.push(`events.is_online = $${queryParams.length + 1}`);
+        queryParams.push(online);
+    }
 
     if (whereClause.length > 0) {
         queryStr += ` WHERE ${whereClause.join(' AND ')}`;
@@ -64,7 +76,7 @@ exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, s
     const sortColumn = sort_by === 'organiser' ? 'organisations.name' : sort_by === 'venue' ? 'venues.name' : `events.${sort_by}`;
 
     queryStr += ` ORDER BY ${sortColumn} ${order};`;
-
+    
     return db
         .query(queryStr, queryParams)
         .then(({ rows }) => {

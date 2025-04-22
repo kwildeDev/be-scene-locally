@@ -235,7 +235,7 @@ describe('/api/events', () => {
             });
         });
     });
-    test('GET 200: filters events that have a given valid venue', () => {
+    test('GET 200: filters events that have a given venue', () => {
         return request(app)
         .get('/api/events?venue=Keswick Community Centre')
         .expect(200)
@@ -263,6 +263,85 @@ describe('/api/events', () => {
             expect(body.events).toHaveLength(2);
             body.events.forEach((event) => {
                 expect(event.venue).toBe('Keswick Community Centre');
+            });
+        });
+    });
+    test('GET 200: filters events that have a given organiser', () => {
+        return request(app)
+        .get('/api/events?organiser=Keswick Seniors Society')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(2);
+            body.events.forEach((event) => {
+                expect(event.organiser).toBe('Keswick Seniors Society');
+            });
+        })
+    });
+    test('GET 200: returns an empty array if no events match the organiser name', () => {
+        return request(app)
+        .get('/api/events?organiser=Keswick Cool Events')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toBeInstanceOf(Array);
+            expect(body.events).toHaveLength(0);
+        });
+    });
+    test('GET 200: filters events by organiser name case-insensitively', () => {
+        return request(app)
+        .get('/api/events?organiser=derwentwater%20conservation%20group')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toHaveLength(2);
+            body.events.forEach((event) => {
+                expect(event.organiser).toBe('Derwentwater Conservation Group');
+            });
+        });
+    });
+    test('GET 200: filters events where is_recurring is true ', () => {
+        return request(app)
+        .get('/api/events?recurring=true')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toBeInstanceOf(Array);
+            expect(body.events).toHaveLength(7);
+            body.events.forEach((event) => {
+                expect(event.is_recurring).toBe(true);
+            });
+        });
+    });
+    test('GET 200: filters events where is_recurring is false', () => {
+        return request(app)
+        .get('/api/events?recurring=false')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toBeInstanceOf(Array);
+            expect(body.events).toHaveLength(13);
+            body.events.forEach((event) => {
+                expect(event.is_recurring).toBe(false);
+            });
+        });
+    });
+    test('GET 200: filters events where is_online is true ', () => {
+        return request(app)
+        .get('/api/events?online=true')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toBeInstanceOf(Array);
+            expect(body.events).toHaveLength(1);
+            body.events.forEach((event) => {
+                expect(event.is_online).toBe(true);
+            });
+        });
+    });
+    test('GET 200: filters events where is_online is false', () => {
+        return request(app)
+        .get('/api/events?online=false')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body.events).toBeInstanceOf(Array);
+            expect(body.events).toHaveLength(19);
+            body.events.forEach((event) => {
+                expect(event.is_online).toBe(false);
             });
         });
     });
@@ -314,6 +393,23 @@ describe('/api/events', () => {
             expect(body.msg).toBe('Subcategory Not Found');        
         });    
     });
+    test('GET 400: responds with an error message when given an invalid value (not boolean) for is_recurring', () => {
+        return request(app)
+        .get('/api/events?recurring=errors')
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Bad Request');
+        });
+    });
+    test('GET 400: responds with an error message when given an invalid value (not boolean) for is_online', () => {
+        return request(app)
+        .get('/api/events?online=zoom')
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Bad Request');
+        });
+    });
+    
 
     describe('POST /api/events', () => {
         const generateEventInput = (overrides = {}) => ({

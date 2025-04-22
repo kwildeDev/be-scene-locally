@@ -141,7 +141,7 @@ module.exports = [
     status: 'published',
     image_url: 'coding_workshop.jpg',
     access_link: null,
-    is_online: false,
+    is_online: true,
     signup_required: true,
   },
   {
