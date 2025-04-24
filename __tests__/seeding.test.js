@@ -127,6 +127,9 @@ describe('Test seeding of test data', () => {
                 );
                 expect(row).toHaveProperty('event_id', expect.any(Number));
                 expect(row).toHaveProperty('user_id', expect.any(Number));
+                expect(row).toHaveProperty('name');
+                expect(row).toHaveProperty('email');
+                expect(row).toHaveProperty('is_registered_user', expect.any(Boolean));
                 expect(row).toHaveProperty('created_at', expect.any(Date));
             });
         });

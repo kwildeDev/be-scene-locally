@@ -716,6 +716,9 @@ describe('/api/events/:event_id/attendees', () => {
                     expect(attendee.event_id).toBe(3);
                     expect(attendee).toHaveProperty('registration_id', expect.any(Number));
                     expect(attendee).toHaveProperty('user_id', expect.any(Number));
+                    expect(attendee).toHaveProperty('name');
+                    expect(attendee).toHaveProperty('email');
+                    expect(attendee).toHaveProperty('is_registered_user', expect.any(Boolean));
                     expect(attendee).toHaveProperty('created_at', expect.any(String));
                 });
             });
@@ -794,12 +797,36 @@ describe('/api/events/:event_id/attendees', () => {
                 expect(body.msg).toBe('Event Does Not Exist')
             });
         });
-    test('POST 201: registers a new attendee to the event and sends it back to the client', () => {
-        const input = { user_id: 10 };
+    test('POST 201: registers a new attendee to the event and sends it back to the client - registered user', () => {
+        const input = { user_id: 10, name: 'Amanda Hernandez', email: 'attendee6@example.com', is_registered_user: true};
         const expectedAttendee = {
             registration_id: 21,
             event_id: 8,
-            user_id: 10
+            user_id: 10,
+            name: 'Amanda Hernandez',
+            email: 'attendee6@example.com',
+            is_registered_user: true
+        }
+        return request(app)
+            .post('/api/events/8/attendees')
+            .send(input)
+            .expect(201)
+            .then(({ body }) => {
+                expect(body.attendee).toMatchObject(expectedAttendee)
+                expect(body.attendee).toMatchObject({
+                    created_at: expect.any(String)
+                })
+            });
+    });
+    test('POST 201: registers a new (guest) attendee to the event and sends it back to the client - non-registered user', () => {
+        const input = { name: 'Severus Snape', email: 'ssnape@hogwarts.ac.uk', is_registered_user: false };
+        const expectedAttendee = {
+            registration_id: 21,
+            event_id: 8,
+            user_id: null,
+            name: 'Severus Snape',
+            email: 'ssnape@hogwarts.ac.uk',
+            is_registered_user: false,
         }
         return request(app)
             .post('/api/events/8/attendees')
@@ -813,11 +840,14 @@ describe('/api/events/:event_id/attendees', () => {
             });
     });
     test('POST 201: ignores unnecessary properties', () => {
-        const input = { user_id: 9, i_love_chocolate: true };
+        const input = { user_id: 9, i_love_chocolate: true, name: 'Kevin Martinez', email: 'attendee5@example.com', is_registered_user: true };
         const expectedAttendee = {
             registration_id: 21,
             event_id: 2,
-            user_id: 9
+            user_id: 9,
+            name: 'Kevin Martinez',
+            email: 'attendee5@example.com',
+            is_registered_user: true
         }
         return request(app)
             .post('/api/events/2/attendees')
@@ -832,8 +862,8 @@ describe('/api/events/:event_id/attendees', () => {
             });
     });
     test('POST 201: registers multiple attendees sequentially', () => {
-        const firstInput = { user_id: 10 };
-        const secondInput = { user_id: 9 };
+        const firstInput = { user_id: 10, name: 'Amanda Hernandez', email: 'attendee6@example.com', is_registered_user: true };
+        const secondInput = { user_id: 9, name: 'Kevin Martinez', email: 'attendee5@example.com', is_registered_user: true };
         return request(app)
             .post('/api/events/8/attendees')
             .send(firstInput)
@@ -850,7 +880,7 @@ describe('/api/events/:event_id/attendees', () => {
             });
     });
     test('POST 400: responds with an error message when attempting to register to an invalid event_id', () => {
-        const input = { user_id: 7 };
+        const input = { user_id: 7, name: 'Christopher Garcia', email: 'attendee3@example.com', is_registered_user: true };
         return request(app)
         .post('/api/events/john-talks-boats/attendees')
         .send(input)
@@ -860,7 +890,7 @@ describe('/api/events/:event_id/attendees', () => {
         });
     });
     test('POST 404: responds with an error message when attempting to register to a valid but non-existent event_id', () => {
-        const input = { user_id: 6};
+        const input = { user_id: 6, name: 'Sarah Davis', email: 'attendee2@example.com', is_registered_user: true };
         return request(app)
         .post('/api/events/99999/attendees')
         .send(input)
@@ -869,18 +899,8 @@ describe('/api/events/:event_id/attendees', () => {
             expect(body.msg).toBe('EVENT ID 99999 Does Not Exist')
         });
     });
-    test('POST 400: responds with an error message if the user_id is missing', () => {
-        const input = { user_name: 'Dave'};
-        return request(app)
-        .post('/api/events/1/attendees')
-        .send(input)
-        .expect(400)
-        .then(({ body }) => {
-            expect(body.msg).toBe('Bad Request')
-        });
-    })
     test('POST 404: responds with an error message if the user does not exist', () => {
-        const input = { user_id: 99999 };
+        const input = { user_id: 99999, name: 'Invalid User', email: 'invalid@idontexist.org', is_registered_user: true };
         return request(app)
         .post('/api/events/3/attendees')
         .send(input)
