@@ -173,7 +173,10 @@ const seed = ({
                 CREATE TABLE attendees (
                     registration_id SERIAL PRIMARY KEY,
                     event_id INT NOT NULL REFERENCES events(event_id) ON DELETE CASCADE,
-                    user_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+                    user_id INT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+                    name VARCHAR NOT NULL,
+                    email VARCHAR NOT NULL,
+                    is_registered_user BOOLEAN DEFAULT FALSE,
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                 );
             `);
@@ -357,10 +360,13 @@ const seed = ({
         })
         .then(() => {
             const insertAttendeesQueryStr = format(
-                'INSERT INTO attendees (event_id, user_id, created_at) VALUES %L',
-                attendeesData.map(({ event_id, user_id, created_at }) => [
+                'INSERT INTO attendees (event_id, user_id, name, email, is_registered_user, created_at) VALUES %L',
+                attendeesData.map(({ event_id, user_id, name, email, is_registered_user, created_at }) => [
                     event_id,
                     user_id,
+                    name,
+                    email,
+                    is_registered_user,
                     created_at,
                 ])
             );

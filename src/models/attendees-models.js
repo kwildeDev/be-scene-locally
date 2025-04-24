@@ -1,10 +1,10 @@
 const db = require('../../db/connection');
 
-exports.createAttendee = (event_id, { user_id }) => {
+exports.createAttendee = (event_id, { user_id, name, email, is_registered_user }) => {
     return db
-    .query(`INSERT INTO attendees (event_id, user_id)
-            VALUES ($1, $2)
-            RETURNING *;`, [event_id, user_id]
+    .query(`INSERT INTO attendees (event_id, user_id, name, email, is_registered_user)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING *;`, [event_id, user_id, name, email, is_registered_user]
         )
         .then((result) => {
             return result.rows[0];
