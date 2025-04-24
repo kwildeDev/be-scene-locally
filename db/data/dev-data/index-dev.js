@@ -1,0 +1,10 @@
+exports.organisationsData = require("./organisations-dev.js");
+exports.venuesData = require("./venues-dev.js");
+exports.categoriesData = require("./categories-dev.js");
+exports.usersData = require("./users-dev.js");
+exports.subcategoriesData = require("./subcategories-dev.js");
+exports.eventsData = require("./events-dev.js");
+exports.attendeesData = require("./attendees-dev.js");
+exports.faqData = require("./faq-dev.js");
+exports.questionsData = require("./questions-dev.js");
+exports.reviewsData = require("./reviews-dev.js");
