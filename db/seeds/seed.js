@@ -319,7 +319,7 @@ const seed = ({
         })
         .then(() => {
             const insertEventsQueryStr = format(
-                'INSERT INTO events (organisation_id, title, description, start_datetime, end_datetime, venue_id, category_id, subcategory_id, tags, is_recurring, recurring_schedule, status, image_url, access_link, is_online) VALUES %L',
+                'INSERT INTO events (organisation_id, title, description, start_datetime, end_datetime, venue_id, category_id, subcategory_id, tags, is_recurring, recurring_schedule, status, image_url, access_link, is_online, signup_required) VALUES %L',
                 eventsData.map(
                     ({
                         organisation_id,
@@ -337,6 +337,7 @@ const seed = ({
                         image_url,
                         access_link,
                         is_online,
+                        signup_required,
                     }) => [
                         organisation_id,
                         title,
@@ -353,6 +354,7 @@ const seed = ({
                         image_url,
                         access_link,
                         is_online,
+                        signup_required,
                     ]
                 )
             );

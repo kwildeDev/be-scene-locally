@@ -14,6 +14,7 @@ describe('/api/categories', () => {
                 body.categories.forEach((category) => {
                     expect(typeof category.category_id).toBe('number');
                     expect(typeof category.name).toBe('string');
+                    expect(typeof category.name).toBe('string');
                     expect(typeof category.description).toBe('string');
                 });
             });
