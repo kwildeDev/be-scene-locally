@@ -5,12 +5,12 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: '../.env.test'});
 
 describe('/api/events', () => {
-    test('GET 200: returns an array of all available events', () => {
+    test('GET 200: returns an array of all available published events', () => {
         return request(app)
             .get(`/api/events`)
             .expect(200)
             .then(({ body }) => {
-                expect(body.events).toHaveLength(20);
+                expect(body.events).toHaveLength(18);
                 body.events.forEach((event) => {
                     expect(event).toHaveProperty('event_id', expect.any(Number));
                     expect(event).toHaveProperty('organiser', expect.any(String));
@@ -63,7 +63,7 @@ describe('/api/events', () => {
         .get('/api/events?sort_by=organiser&cherries&order=asc')
         .expect(200)
         .then(({ body }) => {
-            expect(body.events).toHaveLength(20);
+            expect(body.events).toHaveLength(18);
             expect(body.events).toBeSortedBy('organiser');
         });
     });
@@ -97,7 +97,7 @@ describe('/api/events', () => {
         .get('/api/events?category=health-wellbeing&subcategory=fitness-classes')
         .expect(200)
         .then(({ body }) => {
-            expect(body.events).toHaveLength(1);
+            expect(body.events).toHaveLength(0);
             body.events.forEach((event) => {
                 expect(event.category_id).toBe(6)
                 expect(event.subcategory_id).toBe(13);
@@ -123,7 +123,7 @@ describe('/api/events', () => {
         .get('/api/events?category=health-wellbeing&sort_by=created_at&order=desc')
         .expect(200)
         .then(({ body }) => {
-            expect(body.events).toHaveLength(2);
+            expect(body.events).toHaveLength(1);
             expect(body.events).toBeSortedBy('created_at', { descending: true })
             body.events.forEach((event) => {
                 expect(event.category_id).toBe(6)
@@ -161,7 +161,7 @@ describe('/api/events', () => {
         .get('/api/events?search=loc*')
         .expect(200)
         .then(({ body }) => {
-            expect(body.events).toHaveLength(4);
+            expect(body.events).toHaveLength(3);
         });
     });
     test('GET 200: filters events on a search term - leading and trailing whitespace is ignored', () => {
@@ -169,11 +169,11 @@ describe('/api/events', () => {
         .get('/api/events?search= day ')
         .expect(200)
         .then(({ body }) => {
-            expect(body.events).toHaveLength(3);
+            expect(body.events).toHaveLength(2);
             const titles = body.events.map(event => event.title);
             expect(titles).toContain('New Year\'s Day Beach Walk');
             expect(titles).toContain('Sunday Morning Run Club');
-            expect(titles).toContain('Local Shop Saturday Sale');
+            //expect(titles).toContain('Local Shop Saturday Sale'); draft event included in earlier tests
         });
     });
     test('GET 200: filters events on a search term - whitespace within search term is retained', () => {
@@ -189,7 +189,7 @@ describe('/api/events', () => {
         .get('/api/events?search= ')
         .expect(200)
         .then(({ body }) => {
-            expect(body.events).toHaveLength(20);
+            expect(body.events).toHaveLength(18); //published only
         });
     });
     test('GET 200: filters events on a search term - empty array returned if search term not found', () => {
@@ -206,11 +206,11 @@ describe('/api/events', () => {
         .get('/api/events?search=day&sort_by=venue&order=desc')
         .expect(200)
         .then(({ body }) => {
-            expect(body.events).toHaveLength(3);
+            expect(body.events).toHaveLength(2);
             expect(body.events).toBeSortedBy('venue', {descending: true })
-            expect(body.events[0].title).toBe('Local Shop Saturday Sale');
-            expect(body.events[1].title).toBe('Sunday Morning Run Club');
-            expect(body.events[2].title).toBe('New Year\'s Day Beach Walk');
+            //expect(body.events[0].title).toBe('Local Shop Saturday Sale'); draft event included in earlier tests
+            expect(body.events[0].title).toBe('Sunday Morning Run Club');
+            expect(body.events[1].title).toBe('New Year\'s Day Beach Walk');
         });
     });
     test('GET 200: filters events on a given date YYYY-MM-DD', () => {
@@ -315,7 +315,7 @@ describe('/api/events', () => {
         .expect(200)
         .then(({ body }) => {
             expect(body.events).toBeInstanceOf(Array);
-            expect(body.events).toHaveLength(13);
+            expect(body.events).toHaveLength(11); // published events only
             body.events.forEach((event) => {
                 expect(event.is_recurring).toBe(false);
             });
@@ -339,7 +339,7 @@ describe('/api/events', () => {
         .expect(200)
         .then(({ body }) => {
             expect(body.events).toBeInstanceOf(Array);
-            expect(body.events).toHaveLength(19);
+            expect(body.events).toHaveLength(17);
             body.events.forEach((event) => {
                 expect(event.is_online).toBe(false);
             });

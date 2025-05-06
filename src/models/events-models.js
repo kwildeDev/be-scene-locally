@@ -25,7 +25,7 @@ exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, s
     INNER JOIN organisations ON events.organisation_id = organisations.organisation_id
     INNER JOIN venues ON events.venue_id = venues.venue_id
     `;
-    const whereClause = [];
+    const whereClause = ["events.status = 'published'"];
     const queryParams = [];
 
     if (category_id) {
