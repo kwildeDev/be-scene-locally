@@ -25,7 +25,7 @@ exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, s
     INNER JOIN organisations ON events.organisation_id = organisations.organisation_id
     INNER JOIN venues ON events.venue_id = venues.venue_id
     `;
-    const whereClause = ["events.status = 'published'"];
+    const whereClause = ["events.status = 'published' AND events.start_datetime > NOW()"];
     const queryParams = [];
 
     if (category_id) {
@@ -37,12 +37,14 @@ exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, s
         queryParams.push(subcategory_id);
     }
     if (search) {
-        const formattedSearch = search
-            .replace(/([%_])/g, '\\$1')
-            .replace(/\*/g, '%')
-            .trim();
-        whereClause.push(`events.title ILIKE $${queryParams.length + 1}`);
-        queryParams.push(`%${formattedSearch}%`);
+        const sanitisedSearch = search.replace(/[%_]/g, '\\$1').replace(/\*/g, '%').trim();
+        if (sanitisedSearch.includes('%')) {
+            whereClause.push(`events.title ILIKE $${queryParams.length + 1}`);
+            queryParams.push(sanitisedSearch);
+        } else {
+            whereClause.push(`events.title ~* $${queryParams.length + 1}`);
+            queryParams.push(`\\m${sanitisedSearch}\\M`);
+        }
     }
     if (date) {
         whereClause.push(`DATE(events.start_datetime) = $${queryParams.length + 1}`);
