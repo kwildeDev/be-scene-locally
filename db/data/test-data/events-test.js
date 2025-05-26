@@ -44,7 +44,7 @@ module.exports = [
     venue_id: 3,
     category_id: 3,
     subcategory_id: 7,
-    tags: ['environment', 'volunteer', 'cleanup'],
+    tags: ['environment', 'volunteer', 'cleanup', 'beginners', 'workshop', 'burger'],
     is_recurring: false,
     recurring_schedule: null,
     status: 'published',
