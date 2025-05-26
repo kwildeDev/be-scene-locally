@@ -1,5 +1,4 @@
 const db = require('../../db/connection');
-const { response } = require('../app');
 
 exports.fetchEvents = (sort_by = 'start_datetime', order = 'asc', category_id, subcategory_id, search, date, tags, venue, organiser, recurring, online) => {
     const validSortBys = ['start_datetime', 'created_at', 'organiser', 'venue']
