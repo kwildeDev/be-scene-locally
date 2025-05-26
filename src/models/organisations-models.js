@@ -24,3 +24,25 @@ exports.fetchEventsByOrganisationId = (organisation_id) => {
                 });
         });
 };
+
+exports.fetchTagsByOrganisationId = (organisation_id) => {
+    return db
+        .query(
+            `SELECT EXISTS (SELECT 1 FROM organisations WHERE organisation_id = $1)`, [organisation_id]
+        )
+        .then(({ rows }) => {
+            if (!rows[0].exists) {
+                return Promise.reject({ status: 404, msg: 'Organisation Does Not Exist'});
+            }
+            return db
+                .query(
+                    `SELECT DISTINCT unnest(events.tags) AS unique_tag 
+                    FROM events
+                    WHERE events.organisation_id = $1
+                    ORDER BY unique_tag ASC;`,[organisation_id]
+                    )
+                .then(({ rows }) => {
+                    return rows.map(row => row.unique_tag);
+                });
+        });
+};

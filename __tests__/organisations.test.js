@@ -122,4 +122,25 @@ describe('/api/organisations/:organisation_id/events', () => {
         expect(queryPlan).toContain('Index Scan using idx_organisations_organisation_id');
         expect(queryPlan).toContain('Index Scan using venues_pkey');
     });
+    test('GET 200: returns an array of all available tags for a single organisation', () => {
+        const staffToken = jwt.sign(
+            { user_id: 4, role: 'organiser', organisation_id: 3 },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+        return request(app)
+            .get(`/api/organisations/3/tags`)
+            .set(`Authorization`, `Bearer ${staffToken}`)
+            .expect(200)
+            .then(({ body }) => {
+                function areElementsUnique(tagsArray) {
+                    return new Set(tagsArray).size === tagsArray.length
+                }
+                expect(body.tags).toBeInstanceOf(Array)
+                body.tags.forEach((tag) => {
+                    expect(typeof tag).toBe("string");
+                });
+                expect(areElementsUnique(body.tags)).toBe(true);
+            });
+    });
 });
