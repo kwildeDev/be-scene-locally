@@ -28,3 +28,6 @@ exports.serverErrorHandler = (err, request, response, next) => {
     response.status(500).send({msg: "Internal Server Error"})
 };
 
+exports.missingRouteHandler = (request, response) => {
+    response.status(404).send({ msg: "Endpoint Does Not Exist" });
+};
