@@ -78,3 +78,72 @@ describe('/api/categories/:category_slug/subcategories', () => {
         });
     });
 });
+
+// Category and subcategory lookup by ID for event management
+describe('/api/categories/id/:category_id', () => {
+    test('GET 200: returns a single category object by its ID number', () => {
+        return request(app)
+            .get(`/api/categories/id/1`)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.category).toHaveProperty('category_id', expect.any(Number));
+                expect(body.category).toHaveProperty('name', expect.any(String));
+                expect(body.category).toHaveProperty('slug', expect.any(String));
+                expect(body.category).toHaveProperty('description', expect.any(String));
+            });
+    });  
+    test('GET 404: responds with an error message when given a valid but non-existent category ID', () => {
+        return request(app)
+        .get('/api/categories/id/999')
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe("Category Not Found")
+        });
+    });
+});
+describe('/api/categories/id/:category_id/subcategories', () => {
+    test('GET 200: returns an array of available subcategories for a valid category ID', () => {
+        return request(app)
+            .get(`/api/categories/id/1/subcategories`)
+            .expect(200)
+            .then(({ body }) => {
+                body.subcategories.forEach((subcategory) => {
+                    expect(subcategory).toHaveProperty('subcategory_id', expect.any(Number));
+                    expect(subcategory).toHaveProperty('category_id', expect.any(Number));
+                    expect(subcategory).toHaveProperty('name', expect.any(String));
+                    expect(subcategory).toHaveProperty('slug', expect.any(String));
+                    expect(subcategory).toHaveProperty('description', expect.any(String));
+                });
+            });
+    });
+    test('GET 404: responds with an error message when given a valid but non-existent category ID', () => {
+        return request(app)
+        .get('/api/categories/id/999/subcategories')
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe("Category Not Found")
+        });
+    });
+});
+describe('/api/categories/id/:category_id/subcategories/:subcategory_id', () => {
+    test('GET 200: returns a single subcategory object by its ID number', () => {
+        return request(app)
+            .get(`/api/categories/id/1/subcategories/2`)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.subcategory).toHaveProperty('subcategory_id', expect.any(Number));
+                expect(body.subcategory).toHaveProperty('category_id', expect.any(Number));
+                expect(body.subcategory).toHaveProperty('name', expect.any(String));
+                expect(body.subcategory).toHaveProperty('slug', expect.any(String));
+                expect(body.subcategory).toHaveProperty('description', expect.any(String));
+            });
+    });
+    test('GET 404: responds with an error message when given a valid but non-existent subcategory ID', () => {
+        return request(app)
+        .get('/api/categories/id/1/subcategories/999')
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe("Subcategory Not Found")
+        });
+    });
+});
