@@ -12,11 +12,14 @@ exports.fetchEventsByOrganisationId = (organisation_id) => {
             return db
                 .query(
                     `SELECT events.event_id, events.title, events.status, events.start_datetime, events.category_id, events.subcategory_id, events.is_recurring, events.image_url, events.is_online, 
-                    events.organisation_id, venues.name AS venue 
+                    events.organisation_id, venues.name AS venue, COUNT(attendees.registration_id)::int AS attendee_count 
                     FROM events
                     INNER JOIN venues
                     ON events.venue_id = venues.venue_id
+                    LEFT JOIN attendees
+                    ON events.event_id = attendees.event_id
                     WHERE events.organisation_id = $1
+                    GROUP BY events.event_id, venues.name
                     ORDER BY events.start_datetime ASC;`,[organisation_id]
                     )
                 .then(({ rows }) => {

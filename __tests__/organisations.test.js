@@ -30,6 +30,7 @@ describe('/api/organisations/:organisation_id/events', () => {
                     expect(event).toHaveProperty('is_recurring', expect.any(Boolean));
                     expect(event).toHaveProperty('image_url', expect.any(String));
                     expect(event).toHaveProperty('is_online', expect.any(Boolean));
+                    expect(event).toHaveProperty('attendee_count', expect.any(Number));
                 });
             });
     });
